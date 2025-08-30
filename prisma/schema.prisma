@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  landingPages LandingPage[]
+  leads        Lead[]
+
+  @@map("users")
+}
+
+model LandingPage {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     Json
+  htmlContent String   @db.Text
+  cssContent  String   @db.Text
+  jsContent   String   @db.Text
+  
+  // Form data
+  businessInfo        String?  @db.Text
+  webinarContent      String?  @db.Text
+  targetAudience      String?  @db.Text
+  webinarInfo         String?  @db.Text
+  instructorCreds     String?  @db.Text
+  contactFields       Json     @default("[]")
+  visualStyle         String?
+  brandColors         String?
+  uniqueSellingPoints String?  @db.Text
+  upsellProducts      String?  @db.Text
+  specialRequirements String?  @db.Text
+  photos              Json     @default("[]")
+  
+  // Publishing
+  isPublished    Boolean @default(false)
+  isListed       Boolean @default(false) // For marketplace
+  customDomain   String?
+  publishedAt    DateTime?
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leads  Lead[]
+
+  @@map("landing_pages")
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  name          String?
+  email         String?
+  phone         String?
+  instagram     String?
+  additionalData Json    @default("{}")
+  
+  // Relations
+  landingPageId String
+  landingPage   LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@map("leads")
+}
+
+model PageVersion {
+  id            String   @id @default(cuid())
+  landingPageId String
+  version       Int
+  content       Json
+  htmlContent   String   @db.Text
+  cssContent    String   @db.Text
+  jsContent     String   @db.Text
+  createdAt     DateTime @default(now())
+  
+  @@map("page_versions")
+}
