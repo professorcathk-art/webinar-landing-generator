@@ -200,6 +200,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Create or get default user for demo purposes
+    let defaultUser = await prisma.user.findFirst({
+      where: { email: 'demo@webinar-generator.com' }
+    })
+    
+    if (!defaultUser) {
+      defaultUser = await prisma.user.create({
+        data: {
+          email: 'demo@webinar-generator.com',
+          name: 'Demo User',
+          password: 'demo-password-hash', // This should be properly hashed in production
+        }
+      })
+    }
+
     // Create landing page in database
     const landingPage = await prisma.landingPage.create({
       data: {
@@ -222,7 +237,7 @@ export async function POST(request: NextRequest) {
         htmlContent: parsedResponse.html,
         cssContent: parsedResponse.css,
         jsContent: parsedResponse.js,
-        userId: 'temp-user-id', // TODO: Replace with actual user ID from auth
+        userId: defaultUser.id,
       },
     })
 
