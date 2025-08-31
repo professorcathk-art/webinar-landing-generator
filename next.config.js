@@ -3,15 +3,15 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
-  // Build optimization
-  experimental: {
-    // Disable build trace collection to prevent stack overflow
-    buildTrace: false,
-  },
   // Optimize build performance
   swcMinify: true,
   // Reduce bundle size
   compress: true,
+  // Disable static optimization for problematic pages
+  experimental: {
+    // Disable static generation for pages that might cause issues
+    staticPageGenerationTimeout: 0,
+  },
 }
 
 module.exports = nextConfig

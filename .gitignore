@@ -162,15 +162,3 @@ $RECYCLE.BIN/
 
 # Prisma
 prisma/migrations/
-
-# Build optimization
-.vercel/output/
-.vercel/build/
-.next/cache/
-.next/trace/
-
-# Large files that might cause build issues
-*.zip
-*.tar.gz
-*.rar
-*.7z
