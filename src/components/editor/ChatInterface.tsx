@@ -72,7 +72,7 @@ export default function ChatInterface({
         },
         body: JSON.stringify({
           blockType: 'landing-page',
-          currentContent: pageContext?.htmlContent || '',
+          currentContent: currentContent,
           userInstructions: inputValue,
           pageContext: {
             businessInfo: pageContext?.businessInfo || '',
