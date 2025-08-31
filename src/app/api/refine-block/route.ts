@@ -7,11 +7,11 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { blockType, currentContent, refinementRequest, pageContext } = await request.json()
+    const { blockType, currentContent, userInstructions, pageContext } = await request.json()
 
-    if (!blockType || !currentContent || !refinementRequest) {
+    if (!blockType || !currentContent || !userInstructions) {
       return NextResponse.json(
-        { error: 'Missing required fields: blockType, currentContent, refinementRequest' },
+        { error: 'Missing required fields: blockType, currentContent, userInstructions' },
         { status: 400 }
       )
     }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 ${currentContent}
 
 ## Refinement Request:
-${refinementRequest}
+${userInstructions}
 
 ## Page Context:
 ${pageContext || 'No additional context provided'}
@@ -46,7 +46,7 @@ Please provide only the refined content without any additional explanations.`
 
     // Generate refined content with AI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
