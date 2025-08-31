@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function PreviewPage() {
+function PreviewContent() {
   const searchParams = useSearchParams()
   const pageId = searchParams.get('id')
   const [previewData, setPreviewData] = useState<any>(null)
@@ -85,5 +85,20 @@ export default function PreviewPage() {
         <script dangerouslySetInnerHTML={{ __html: previewData.jsContent }} />
       </div>
     </div>
+  )
+}
+
+export default function PreviewPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading preview...</p>
+        </div>
+      </div>
+    }>
+      <PreviewContent />
+    </Suspense>
   )
 }
