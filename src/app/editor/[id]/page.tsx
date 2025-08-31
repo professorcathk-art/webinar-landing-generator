@@ -2,7 +2,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import DragDropEditor from '@/components/editor/DragDropEditor'
 import ChatInterface from '@/components/editor/ChatInterface'
 
@@ -22,6 +22,7 @@ interface LandingPage {
 
 export default function EditorPage() {
   const params = useParams()
+  const router = useRouter()
   const pageId = params.id as string
   const [landingPage, setLandingPage] = useState<LandingPage | null>(null)
   const [loading, setLoading] = useState(true)
@@ -139,11 +140,11 @@ export default function EditorPage() {
         }
       }
       
-      // Switch to preview mode to show the published page
-      setPreviewMode('preview')
-      
       // Update the landing page state
       setLandingPage(prev => prev ? { ...prev, isPublished: true } : null)
+      
+      // Redirect to dashboard after successful publish
+      router.push('/dashboard')
       
     } catch (err) {
       console.error('Error publishing page:', err)

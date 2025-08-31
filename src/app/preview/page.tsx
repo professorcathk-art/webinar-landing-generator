@@ -63,22 +63,25 @@ function PreviewContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="bg-gray-100 px-4 py-2 border-b">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-gray-900">
-            Preview: {previewData.title}
-          </h1>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500">Desktop</span>
-            <span className="text-sm text-gray-500">•</span>
-            <span className="text-sm text-gray-500">Mobile</span>
+      {/* Only show preview bar if it's not a published page */}
+      {!previewData.isPublished && (
+        <div className="bg-gray-100 px-4 py-2 border-b">
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <h1 className="text-lg font-semibold text-gray-900">
+              Preview: {previewData.title}
+            </h1>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-500">Desktop</span>
+              <span className="text-sm text-gray-500">•</span>
+              <span className="text-sm text-gray-500">Mobile</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
       
-      <div className="max-w-4xl mx-auto p-4">
+      <div className={previewData.isPublished ? "" : "max-w-4xl mx-auto p-4"}>
         <div 
-          className="preview-frame border rounded-lg overflow-hidden"
+          className={previewData.isPublished ? "" : "preview-frame border rounded-lg overflow-hidden"}
           dangerouslySetInnerHTML={{ __html: previewData.htmlContent }}
         />
         

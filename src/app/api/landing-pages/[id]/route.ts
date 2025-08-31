@@ -79,3 +79,28 @@ export async function PUT(
     await prisma.$disconnect()
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await prisma.landingPage.delete({
+      where: { id: params.id }
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: 'Landing page deleted successfully'
+    })
+
+  } catch (error) {
+    console.error('Error deleting landing page:', error)
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete landing page' },
+      { status: 500 }
+    )
+  } finally {
+    await prisma.$disconnect()
+  }
+}

@@ -80,8 +80,24 @@ Please provide only the refined HTML content without any additional explanations
 
   } catch (error) {
     console.error('Error in refine-block API:', error)
+    
+    // Enhanced error logging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : 'No stack trace'
+    
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: errorStack,
+      openaiKey: process.env.OPENAI_API_KEY ? 'Configured' : 'Missing',
+      requestData: { blockType, currentContent: currentContent?.substring(0, 100) + '...', userInstructions }
+    })
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: errorMessage,
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
