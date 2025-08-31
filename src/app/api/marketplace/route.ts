@@ -20,14 +20,15 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    if (category && category !== 'all') {
-      where.category = category
-    }
-
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+      where.AND = [
+        {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { businessInfo: { contains: search, mode: 'insensitive' } },
+            { webinarContent: { contains: search, mode: 'insensitive' } },
+          ]
+        }
       ]
     }
 
@@ -39,11 +40,8 @@ export async function GET(request: NextRequest) {
       case 'oldest':
         orderBy.createdAt = 'asc'
         break
-      case 'popular':
-        orderBy.likes = 'desc'
-        break
-      case 'views':
-        orderBy.views = 'desc'
+      default:
+        orderBy.createdAt = 'desc'
         break
     }
 

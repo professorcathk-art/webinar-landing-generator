@@ -1262,8 +1262,16 @@ async function handleRegistration(event) {
         additionalInfo: formData.get('question') || ''
     };
     
+    console.log('Submitting registration data:', data);
+    
     try {
-        const response = await fetch(window.location.origin + '/api/leads', {
+        // Get the current domain and construct the API URL
+        const currentOrigin = window.location.origin;
+        const apiUrl = currentOrigin + '/api/leads';
+        
+        console.log('API URL:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1271,7 +1279,12 @@ async function handleRegistration(event) {
             body: JSON.stringify(data)
         });
         
+        console.log('Response status:', response.status);
+        
         if (response.ok) {
+            const result = await response.json();
+            console.log('Success response:', result);
+            
             // Show success message
             alert('感謝您的註冊！我們會盡快與您聯繫確認詳情。');
             closeModal();
@@ -1279,11 +1292,13 @@ async function handleRegistration(event) {
             // Reset form
             event.target.reset();
         } else {
-            throw new Error('Failed to submit registration');
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+            throw new Error('Failed to submit registration: ' + response.status);
         }
     } catch (error) {
         console.error('Error submitting registration:', error);
-        alert('抱歉，提交時發生錯誤。請稍後再試。');
+        alert('抱歉，提交時發生錯誤。請稍後再試。錯誤詳情: ' + error.message);
     }
 }
 

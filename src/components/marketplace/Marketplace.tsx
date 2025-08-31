@@ -8,16 +8,14 @@ import Link from 'next/link'
 interface MarketplacePage {
   id: string
   title: string
-  description: string
-  category: string
-  author: string
-  thumbnail: string
-  views: number
-  likes: number
+  businessInfo: string
+  webinarContent: string
   createdAt: string
-  tags: string[]
   isListed: boolean
   isPublished: boolean
+  user: {
+    name: string
+  }
 }
 
 export default function Marketplace() {
@@ -75,14 +73,9 @@ export default function Marketplace() {
     if (searchTerm) {
       filtered = filtered.filter(page =>
         page.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        page.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        page.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        page.businessInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        page.webinarContent.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    }
-
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(page => page.category === selectedCategory)
     }
 
     // Sort pages
@@ -94,10 +87,12 @@ export default function Marketplace() {
         filtered.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
         break
       case 'popular':
-        filtered.sort((a, b) => b.likes - a.likes)
+        // Sort by creation date for now since we don't have likes/views
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         break
       case 'views':
-        filtered.sort((a, b) => b.views - a.views)
+        // Sort by creation date for now since we don't have views
+        filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         break
     }
 
@@ -220,33 +215,25 @@ export default function Marketplace() {
               >
                 {/* Thumbnail */}
                 <div className="relative h-48 bg-gray-100">
-                  {page.thumbnail ? (
-                    <img
-                      src={page.thumbnail}
-                      alt={page.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <Eye className="h-12 w-12" />
-                    </div>
-                  )}
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <Eye className="h-12 w-12" />
+                  </div>
                   <div className="absolute top-3 right-3">
-                    <button className="p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow">
-                      <Heart className="h-4 w-4 text-gray-600" />
-                    </button>
+                    <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded">
+                      {page.isPublished ? 'Published' : 'Draft'}
+                    </span>
                   </div>
                 </div>
 
                 {/* Content */}
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-primary-600 bg-primary-50 px-2 py-1 rounded">
-                      {categories.find(c => c.id === page.category)?.name}
+                    <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                      Webinar
                     </span>
                     <div className="flex items-center space-x-1 text-gray-400">
-                      <Star className="h-3 w-3 fill-current" />
-                      <span className="text-xs">{page.likes}</span>
+                      <Users className="h-3 w-3" />
+                      <span className="text-xs">{page.user?.name || 'Anonymous'}</span>
                     </div>
                   </div>
 
@@ -255,38 +242,11 @@ export default function Marketplace() {
                   </h3>
 
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                    {page.description}
+                    {page.businessInfo}
                   </p>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {page.tags.slice(0, 3).map((tag, tagIndex) => (
-                      <span
-                        key={tagIndex}
-                        className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {page.tags.length > 3 && (
-                      <span className="text-xs text-gray-400">
-                        +{page.tags.length - 3} more
-                      </span>
-                    )}
-                  </div>
 
                   {/* Stats */}
                   <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-1">
-                        <Eye className="h-4 w-4" />
-                        <span>{page.views}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Users className="h-4 w-4" />
-                        <span>{page.likes}</span>
-                      </div>
-                    </div>
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-4 w-4" />
                       <span>{formatDate(page.createdAt)}</span>
@@ -296,7 +256,7 @@ export default function Marketplace() {
                   {/* Actions */}
                   <div className="flex items-center justify-between">
                     <Link
-                      href={`/preview/${page.id}`}
+                      href={`/preview?id=${page.id}`}
                       className="btn-primary text-sm px-4 py-2"
                     >
                       View Page
