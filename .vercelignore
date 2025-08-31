@@ -46,3 +46,6 @@ docs/
 # Exclude git
 .git
 .gitignore
+
+# Exclude node_modules to prevent build trace issues
+node_modules
