@@ -3,6 +3,15 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
+// Declare global functions for TypeScript
+declare global {
+  interface Window {
+    openModal: () => void
+    closeModal: () => void
+    handleRegistration: (event: Event) => void
+  }
+}
+
 function PreviewContent() {
   const searchParams = useSearchParams()
   const pageId = searchParams.get('id')
@@ -14,6 +23,93 @@ function PreviewContent() {
       loadPreviewData()
     }
   }, [pageId])
+
+  // Add global form handler for published pages
+  useEffect(() => {
+    if (previewData?.isPublished) {
+      // Override the global openModal function
+      window.openModal = () => {
+        const modal = document.getElementById('registrationModal')
+        if (modal) {
+          modal.style.display = 'block'
+          document.body.style.overflow = 'hidden'
+        }
+      }
+
+      // Override the global closeModal function
+      window.closeModal = () => {
+        const modal = document.getElementById('registrationModal')
+        if (modal) {
+          modal.style.display = 'none'
+          document.body.style.overflow = 'auto'
+        }
+      }
+
+      // Override the global handleRegistration function
+      window.handleRegistration = async (event) => {
+        event.preventDefault()
+        
+        const target = event.target as HTMLFormElement
+        const formData = new FormData(target)
+        const data = {
+          pageId: pageId,
+          name: formData.get('name'),
+          email: formData.get('email'),
+          phone: formData.get('phone'),
+          instagram: formData.get('instagram') || '',
+          additionalInfo: formData.get('question') || ''
+        }
+        
+        console.log('Submitting registration data:', data)
+        
+        try {
+          const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+          })
+          
+          console.log('Response status:', response.status)
+          
+          if (response.ok) {
+            const result = await response.json()
+            console.log('Success response:', result)
+            
+            alert('感謝您的註冊！我們會盡快與您聯繫確認詳情。')
+            window.closeModal()
+            
+            target.reset()
+          } else {
+            const errorText = await response.text()
+            console.error('Error response:', errorText)
+            throw new Error('Failed to submit registration: ' + response.status)
+          }
+        } catch (error) {
+          console.error('Error submitting registration:', error)
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+          alert('抱歉，提交時發生錯誤。請稍後再試。錯誤詳情: ' + errorMessage)
+        }
+      }
+
+      // Add click outside modal handler
+      window.onclick = function(event) {
+        const modal = document.getElementById('registrationModal')
+        if (event.target == modal) {
+          window.closeModal()
+        }
+      }
+
+      // Cleanup function
+      return () => {
+        window.openModal = undefined as any
+        window.closeModal = undefined as any
+        window.handleRegistration = undefined as any
+        window.onclick = undefined as any
+      }
+    }
+  }, [previewData, pageId])
 
   const loadPreviewData = async () => {
     try {
