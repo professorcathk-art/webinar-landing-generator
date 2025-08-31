@@ -43,15 +43,25 @@ export async function PUT(
   try {
     const body = await request.json()
     
+    const updateData: any = {
+      htmlContent: body.htmlContent || '',
+      cssContent: body.cssContent || '',
+      jsContent: body.jsContent || '',
+      title: body.title || '',
+      updatedAt: new Date()
+    }
+
+    // Handle publishing
+    if (body.published !== undefined) {
+      updateData.isPublished = body.published
+      if (body.published) {
+        updateData.publishedAt = new Date()
+      }
+    }
+
     const updatedPage = await prisma.landingPage.update({
       where: { id: params.id },
-      data: {
-        htmlContent: body.htmlContent || '',
-        cssContent: body.cssContent || '',
-        jsContent: body.jsContent || '',
-        title: body.title || '',
-        updatedAt: new Date()
-      }
+      data: updateData
     })
 
     return NextResponse.json({

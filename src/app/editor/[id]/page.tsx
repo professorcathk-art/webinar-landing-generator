@@ -22,6 +22,7 @@ export default function EditorPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showChat, setShowChat] = useState(false)
+  const [previewMode, setPreviewMode] = useState<'editor' | 'preview'>('preview')
 
   useEffect(() => {
     fetchLandingPage()
@@ -84,14 +85,38 @@ export default function EditorPage() {
 
   const handlePublish = async () => {
     try {
-      // This would be replaced with actual API call
-      // await fetch(`/api/landing-pages/${pageId}/publish`, {
-      //   method: 'POST'
-      // })
+      // Update the page status to published
+      const response = await fetch(`/api/landing-pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          htmlContent: landingPage?.htmlContent || '',
+          cssContent: landingPage?.cssContent || '',
+          jsContent: landingPage?.jsContent || '',
+          title: landingPage?.title || '',
+          published: true
+        })
+      })
       
-      console.log('Page published successfully')
+      if (!response.ok) {
+        throw new Error('Failed to publish page')
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to publish page')
+      }
+      
+      // Show success message
+      alert('Page published successfully! You can now share the preview URL.')
+      
+      // Open the published page in a new tab
+      window.open(`/preview?id=${pageId}`, '_blank')
+      
     } catch (err) {
       console.error('Error publishing page:', err)
+      alert('Failed to publish page. Please try again.')
     }
   }
 
@@ -148,12 +173,28 @@ export default function EditorPage() {
           </div>
           
           <div className="flex items-center space-x-3">
-            <button
-              onClick={() => window.open(`/preview?id=${pageId}`, '_blank')}
-              className="btn-secondary"
-            >
-              Preview
-            </button>
+            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setPreviewMode('preview')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  previewMode === 'preview' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Preview
+              </button>
+              <button
+                onClick={() => setPreviewMode('editor')}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  previewMode === 'editor' 
+                    ? 'bg-white text-gray-900 shadow-sm' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Editor
+              </button>
+            </div>
             <button
               onClick={() => setShowChat(!showChat)}
               className="btn-secondary"
@@ -178,16 +219,54 @@ export default function EditorPage() {
 
       {/* Main Content */}
       <div className="flex h-screen">
-        {/* Editor */}
+        {/* Main Content Area */}
         <div className={`flex-1 ${showChat ? 'w-2/3' : 'w-full'}`}>
-                  <DragDropEditor
-          initialContent={{
-            html: landingPage.htmlContent,
-            css: landingPage.cssContent,
-            js: landingPage.jsContent
-          }}
-          pageId={pageId}
-        />
+          {previewMode === 'preview' ? (
+            // Live Preview Mode
+            <div className="h-full bg-gray-50 p-4">
+              <div className="bg-white rounded-lg shadow-lg h-full overflow-hidden">
+                <div className="bg-gray-100 px-4 py-2 border-b flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-700">Live Preview</h3>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">Desktop</span>
+                    <span className="text-xs text-gray-500">•</span>
+                    <span className="text-xs text-gray-500">Mobile</span>
+                  </div>
+                </div>
+                <div className="h-full overflow-auto">
+                  <iframe
+                    srcDoc={`
+                      <!DOCTYPE html>
+                      <html>
+                        <head>
+                          <meta charset="UTF-8">
+                          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                          <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+                          <style>${landingPage.cssContent}</style>
+                        </head>
+                        <body>
+                          ${landingPage.htmlContent}
+                          <script>${landingPage.jsContent}</script>
+                        </body>
+                      </html>
+                    `}
+                    className="w-full h-full border-0"
+                    title="Landing Page Preview"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Editor Mode
+            <DragDropEditor
+              initialContent={{
+                html: landingPage.htmlContent,
+                css: landingPage.cssContent,
+                js: landingPage.jsContent
+              }}
+              pageId={pageId}
+            />
+          )}
         </div>
 
         {/* Chat Interface */}
