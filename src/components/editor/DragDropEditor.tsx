@@ -37,64 +37,156 @@ interface EditorProps {
 }
 
 export default function DragDropEditor({ initialContent, pageId }: EditorProps) {
-  const [blocks, setBlocks] = useState<Block[]>([
-    {
+  // Parse the AI-generated HTML to extract content for each block
+  const parseAIContent = () => {
+    const blocks: Block[] = []
+    
+    // Create a temporary div to parse the HTML
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = initialContent.html
+    
+    // Extract hero section
+    const heroSection = tempDiv.querySelector('.hero-section')
+    blocks.push({
       id: 'hero',
       type: 'hero',
-      content: 'Hero Section',
+      content: heroSection ? heroSection.innerHTML : 'Hero Section',
       styles: { backgroundColor: '#ffffff', color: '#000000' },
       isEditing: false
-    },
-    {
+    })
+    
+    // Extract benefits section
+    const benefitsSection = tempDiv.querySelector('.benefits')
+    blocks.push({
       id: 'value-prop',
       type: 'value-prop',
-      content: 'Value Proposition',
+      content: benefitsSection ? benefitsSection.innerHTML : 'Value Proposition',
       styles: { backgroundColor: '#f8fafc', color: '#1f2937' },
       isEditing: false
-    },
-    {
+    })
+    
+    // Extract instructor section
+    const instructorSection = tempDiv.querySelector('.instructor')
+    blocks.push({
       id: 'instructor',
       type: 'instructor',
-      content: 'About Instructor',
+      content: instructorSection ? instructorSection.innerHTML : 'About Instructor',
       styles: { backgroundColor: '#ffffff', color: '#000000' },
       isEditing: false
-    },
-    {
+    })
+    
+    // Extract form section
+    const formSection = tempDiv.querySelector('.registration-form')
+    blocks.push({
+      id: 'form',
+      type: 'form',
+      content: formSection ? formSection.innerHTML : 'Registration Form',
+      styles: { backgroundColor: '#ffffff', color: '#000000' },
+      isEditing: false
+    })
+    
+    // Add remaining sections with default content
+    blocks.push({
       id: 'content',
       type: 'content',
       content: 'Webinar Content',
       styles: { backgroundColor: '#f8fafc', color: '#1f2937' },
       isEditing: false
-    },
-    {
+    })
+    
+    blocks.push({
       id: 'testimonials',
       type: 'testimonials',
       content: 'Testimonials',
       styles: { backgroundColor: '#ffffff', color: '#000000' },
       isEditing: false
-    },
-    {
+    })
+    
+    blocks.push({
       id: 'faq',
       type: 'faq',
       content: 'FAQ Section',
       styles: { backgroundColor: '#f8fafc', color: '#1f2937' },
       isEditing: false
-    },
-    {
-      id: 'form',
-      type: 'form',
-      content: 'Registration Form',
-      styles: { backgroundColor: '#ffffff', color: '#000000' },
-      isEditing: false
-    },
-    {
+    })
+    
+    blocks.push({
       id: 'footer',
       type: 'footer',
       content: 'Footer',
       styles: { backgroundColor: '#1f2937', color: '#ffffff' },
       isEditing: false
+    })
+    
+    return blocks
+  }
+
+  const [blocks, setBlocks] = useState<Block[]>(() => {
+    // Use AI-generated content if available, otherwise use defaults
+    if (initialContent.html && initialContent.html.trim() !== '') {
+      return parseAIContent()
     }
-  ])
+    
+    // Fallback to default blocks
+    return [
+      {
+        id: 'hero',
+        type: 'hero',
+        content: 'Hero Section',
+        styles: { backgroundColor: '#ffffff', color: '#000000' },
+        isEditing: false
+      },
+      {
+        id: 'value-prop',
+        type: 'value-prop',
+        content: 'Value Proposition',
+        styles: { backgroundColor: '#f8fafc', color: '#1f2937' },
+        isEditing: false
+      },
+      {
+        id: 'instructor',
+        type: 'instructor',
+        content: 'About Instructor',
+        styles: { backgroundColor: '#ffffff', color: '#000000' },
+        isEditing: false
+      },
+      {
+        id: 'content',
+        type: 'content',
+        content: 'Webinar Content',
+        styles: { backgroundColor: '#f8fafc', color: '#1f2937' },
+        isEditing: false
+      },
+      {
+        id: 'testimonials',
+        type: 'testimonials',
+        content: 'Testimonials',
+        styles: { backgroundColor: '#ffffff', color: '#000000' },
+        isEditing: false
+      },
+      {
+        id: 'faq',
+        type: 'faq',
+        content: 'FAQ Section',
+        styles: { backgroundColor: '#f8fafc', color: '#1f2937' },
+        isEditing: false
+      },
+      {
+        id: 'form',
+        type: 'form',
+        content: 'Registration Form',
+        styles: { backgroundColor: '#ffffff', color: '#000000' },
+        isEditing: false
+      },
+      {
+        id: 'footer',
+        type: 'footer',
+        content: 'Footer',
+        styles: { backgroundColor: '#1f2937', color: '#ffffff' },
+        isEditing: false
+      }
+    ]
+  })
 
   const [selectedBlock, setSelectedBlock] = useState<string | null>(null)
   const [showColorPicker, setShowColorPicker] = useState(false)

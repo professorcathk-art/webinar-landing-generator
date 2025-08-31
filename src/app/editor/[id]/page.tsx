@@ -149,6 +149,12 @@ export default function EditorPage() {
           
           <div className="flex items-center space-x-3">
             <button
+              onClick={() => window.open(`/preview?id=${pageId}`, '_blank')}
+              className="btn-secondary"
+            >
+              Preview
+            </button>
+            <button
               onClick={() => setShowChat(!showChat)}
               className="btn-secondary"
             >
