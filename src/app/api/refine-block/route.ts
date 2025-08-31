@@ -17,32 +17,33 @@ export async function POST(request: NextRequest) {
     }
 
     // Create AI prompt for block refinement
-    const prompt = `# Landing Page Block Refinement
+    const prompt = `# Landing Page Content Refinement
 
-## Block Type: ${blockType}
-## Current Content:
+## Current Page Content:
 ${currentContent}
 
-## Refinement Request:
+## User Request:
 ${userInstructions}
 
 ## Page Context:
-${pageContext || 'No additional context provided'}
+- Business: ${pageContext?.businessInfo || 'Not specified'}
+- Target Audience: ${pageContext?.targetAudience || 'Not specified'}
+- Webinar Content: ${pageContext?.webinarContent || 'Not specified'}
 
 ## Instructions:
-Please refine the specified block based on the user's request. Maintain the same structure and style while improving the content according to the refinement request.
-
-## Output Format:
-Return the refined content in the same format as the original, but with improvements based on the refinement request.
+Please refine the landing page content based on the user's request. You can modify any part of the page to improve it according to their feedback.
 
 ## Requirements:
-- Keep the same HTML structure
-- Maintain responsive design
-- Preserve existing styling classes
-- Improve content based on the refinement request
-- Ensure the refined content fits well with the overall page context
+- Maintain the same HTML structure and styling
+- Keep all existing CSS classes and responsive design
+- Improve the content based on the user's request
+- Ensure the refined content is professional and conversion-focused
+- Preserve all interactive elements and functionality
 
-Please provide only the refined content without any additional explanations.`
+## Output Format:
+Return the complete refined HTML content that can be directly used to replace the current page content.
+
+Please provide only the refined HTML content without any additional explanations or markdown formatting.`
 
     // Generate refined content with AI
     const completion = await openai.chat.completions.create({

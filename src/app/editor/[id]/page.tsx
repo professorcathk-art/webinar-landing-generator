@@ -108,11 +108,37 @@ export default function EditorPage() {
         throw new Error(result.error || 'Failed to publish page')
       }
       
-      // Show success message
-      alert('Page published successfully! You can now share the preview URL.')
+      // Generate the public URL
+      const publicUrl = `${window.location.origin}/preview?id=${pageId}`
       
-      // Open the published page in a new tab
-      window.open(`/preview?id=${pageId}`, '_blank')
+      // Show success message with copy option
+      const shouldCopy = confirm(
+        'Page published successfully!\n\n' +
+        'Public URL: ' + publicUrl + '\n\n' +
+        'Would you like to copy the share link to your clipboard?'
+      )
+      
+      if (shouldCopy) {
+        try {
+          await navigator.clipboard.writeText(publicUrl)
+          alert('Share link copied to clipboard!')
+        } catch (err) {
+          // Fallback for older browsers
+          const textArea = document.createElement('textarea')
+          textArea.value = publicUrl
+          document.body.appendChild(textArea)
+          textArea.select()
+          document.execCommand('copy')
+          document.body.removeChild(textArea)
+          alert('Share link copied to clipboard!')
+        }
+      }
+      
+      // Switch to preview mode to show the published page
+      setPreviewMode('preview')
+      
+      // Update the landing page state
+      setLandingPage(prev => prev ? { ...prev, isPublished: true } : null)
       
     } catch (err) {
       console.error('Error publishing page:', err)
@@ -207,11 +233,33 @@ export default function EditorPage() {
             >
               Save
             </button>
+            {landingPage.isPublished && (
+              <button
+                onClick={async () => {
+                  const publicUrl = `${window.location.origin}/preview?id=${pageId}`
+                  try {
+                    await navigator.clipboard.writeText(publicUrl)
+                    alert('Share link copied to clipboard!')
+                  } catch (err) {
+                    const textArea = document.createElement('textarea')
+                    textArea.value = publicUrl
+                    document.body.appendChild(textArea)
+                    textArea.select()
+                    document.execCommand('copy')
+                    document.body.removeChild(textArea)
+                    alert('Share link copied to clipboard!')
+                  }
+                }}
+                className="btn-secondary"
+              >
+                Copy Share Link
+              </button>
+            )}
             <button
               onClick={handlePublish}
               className="btn-primary"
             >
-              Publish
+              {landingPage.isPublished ? 'Update' : 'Publish'}
             </button>
           </div>
         </div>
@@ -276,9 +324,9 @@ export default function EditorPage() {
               blockType="general"
               currentContent={landingPage.htmlContent}
               pageContext={{
-                businessInfo: "Sample business",
-                targetAudience: "Sample audience",
-                webinarContent: "Sample content"
+                businessInfo: landingPage.content?.businessInfo || "Sample business",
+                targetAudience: landingPage.content?.targetAudience || "Sample audience",
+                webinarContent: landingPage.content?.webinarContent || "Sample content"
               }}
               onContentUpdate={(newContent) => {
                 setLandingPage(prev => prev ? { ...prev, htmlContent: newContent } : null)

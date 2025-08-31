@@ -84,10 +84,14 @@ export default function ChatInterface({
 
       const data = await response.json()
       
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to refine content')
+      }
+      
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: data.refinedContent,
+        content: `I've updated the ${blockType} section based on your request. Here's what I changed:\n\n${data.refinedContent}`,
         timestamp: new Date()
       }
 
