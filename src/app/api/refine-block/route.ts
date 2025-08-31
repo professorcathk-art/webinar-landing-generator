@@ -6,8 +6,17 @@ const openai = new OpenAI({
 })
 
 export async function POST(request: NextRequest) {
+  let blockType: string
+  let currentContent: string
+  let userInstructions: string
+  let pageContext: any
+
   try {
-    const { blockType, currentContent, userInstructions, pageContext } = await request.json()
+    const requestData = await request.json()
+    blockType = requestData.blockType
+    currentContent = requestData.currentContent
+    userInstructions = requestData.userInstructions
+    pageContext = requestData.pageContext
 
     if (!blockType || !currentContent || !userInstructions) {
       return NextResponse.json(
