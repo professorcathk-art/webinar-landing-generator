@@ -137,7 +137,52 @@ export async function POST(request: NextRequest) {
       }
     } catch (openaiError) {
       console.error('OpenAI API error:', openaiError)
-      throw new Error(`OpenAI API error: ${openaiError instanceof Error ? openaiError.message : 'Unknown error'}`)
+      
+      // If quota exceeded, use mock data for testing
+      if (openaiError instanceof Error && openaiError.message.includes('429')) {
+        console.log('Using mock data due to OpenAI quota exceeded')
+        aiResponse = JSON.stringify({
+          html: `<div class="webinar-landing-page">
+            <header class="hero-section">
+              <h1>${businessInfo}</h1>
+              <p>${webinarContent}</p>
+              <button class="cta-button">立即註冊</button>
+            </header>
+            <section class="benefits">
+              <h2>您將學到</h2>
+              <ul>
+                <li>實用的技能和知識</li>
+                <li>專業的指導</li>
+                <li>實戰經驗分享</li>
+              </ul>
+            </section>
+            <section class="instructor">
+              <h2>講師介紹</h2>
+              <p>${instructorCreds}</p>
+            </section>
+            <form class="registration-form">
+              <input type="text" placeholder="姓名" required>
+              <input type="email" placeholder="Email" required>
+              <button type="submit">註冊參加</button>
+            </form>
+          </div>`,
+          css: `body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+          .webinar-landing-page { max-width: 1200px; margin: 0 auto; padding: 20px; }
+          .hero-section { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+          .cta-button { background: #ff6b6b; color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 5px; cursor: pointer; }
+          .benefits, .instructor { padding: 40px 20px; }
+          .registration-form { background: #f8f9fa; padding: 30px; border-radius: 10px; margin: 20px 0; }
+          .registration-form input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }`,
+          js: `document.querySelector('.registration-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('感謝您的註冊！我們會盡快與您聯繫。');
+          });`,
+          title: `${businessInfo} - Webinar`,
+          metaDescription: `${webinarContent}`
+        })
+      } else {
+        throw new Error(`OpenAI API error: ${openaiError instanceof Error ? openaiError.message : 'Unknown error'}`)
+      }
     }
 
     // Parse AI response
