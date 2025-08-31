@@ -139,13 +139,29 @@ export default function DashboardPage() {
             <p className="text-gray-600">Manage and share your webinar landing pages</p>
           </div>
           <div className="flex items-center space-x-3">
-            <button
-              onClick={() => router.push('/create')}
-              className="btn-primary flex items-center space-x-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Create New Page</span>
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => router.push('/leads')}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <User className="h-4 w-4" />
+                <span>View Leads</span>
+              </button>
+              <button
+                onClick={() => router.push('/admin/users')}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <User className="h-4 w-4" />
+                <span>All Users</span>
+              </button>
+              <button
+                onClick={() => router.push('/create')}
+                className="btn-primary flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Create New Page</span>
+              </button>
+            </div>
             <button
               onClick={async () => {
                 try {

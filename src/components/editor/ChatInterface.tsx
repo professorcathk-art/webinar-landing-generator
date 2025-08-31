@@ -71,10 +71,14 @@ export default function ChatInterface({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          blockType,
-          currentContent,
+          blockType: 'landing-page',
+          currentContent: pageContext?.htmlContent || '',
           userInstructions: inputValue,
-          pageContext
+          pageContext: {
+            businessInfo: pageContext?.businessInfo || '',
+            targetAudience: pageContext?.targetAudience || '',
+            webinarContent: pageContext?.webinarContent || ''
+          }
         }),
       })
 
