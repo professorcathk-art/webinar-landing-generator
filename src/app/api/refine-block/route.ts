@@ -6,10 +6,10 @@ const openai = new OpenAI({
 })
 
 export async function POST(request: NextRequest) {
-  let blockType: string
-  let currentContent: string
-  let userInstructions: string
-  let pageContext: any
+  let blockType: string = ''
+  let currentContent: string = ''
+  let userInstructions: string = ''
+  let pageContext: any = null
 
   try {
     const requestData = await request.json()
