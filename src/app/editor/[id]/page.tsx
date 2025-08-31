@@ -1,3 +1,4 @@
+// Updated: Fixed TypeScript compilation errors - Editor page implementation
 'use client'
 
 import { useState, useEffect } from 'react'
