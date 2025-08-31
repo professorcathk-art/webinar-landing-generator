@@ -19,13 +19,13 @@ export async function POST(request: NextRequest) {
     // Create the lead
     const lead = await prisma.lead.create({
       data: {
-        pageId,
+        landingPageId: pageId,
         name: name || '',
         email,
         phone: phone || '',
         instagram: instagram || '',
-        additionalInfo: additionalInfo || '',
-        collectedAt: new Date()
+        additionalData: additionalInfo || {},
+        userId: 'temp-user-id' // TODO: Get from auth context
       }
     })
 
@@ -60,19 +60,19 @@ export async function GET(request: NextRequest) {
     }
 
     let whereClause: any = {
-      page: {
+      landingPage: {
         userId: userId
       }
     }
 
     if (pageId) {
-      whereClause.pageId = pageId
+      whereClause.landingPageId = pageId
     }
 
     const leads = await prisma.lead.findMany({
       where: whereClause,
       include: {
-        page: {
+        landingPage: {
           select: {
             id: true,
             title: true
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         }
       },
       orderBy: {
-        collectedAt: 'desc'
+        createdAt: 'desc'
       }
     })
 

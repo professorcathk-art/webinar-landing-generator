@@ -10,9 +10,9 @@ interface Lead {
   email: string
   phone: string
   instagram: string
-  additionalInfo: string
-  collectedAt: string
-  page: {
+  additionalData: any
+  createdAt: string
+  landingPage: {
     id: string
     title: string
   }
@@ -78,7 +78,7 @@ export default function LeadsPage() {
       lead.phone.includes(searchTerm) ||
       lead.instagram.toLowerCase().includes(searchTerm.toLowerCase())
     
-    const matchesPage = selectedPage === 'all' || lead.page.id === selectedPage
+    const matchesPage = selectedPage === 'all' || lead.landingPage.id === selectedPage
     
     return matchesSearch && matchesPage
   })
@@ -91,9 +91,9 @@ export default function LeadsPage() {
         lead.email,
         lead.phone,
         lead.instagram,
-        lead.additionalInfo,
-        lead.page.title,
-        new Date(lead.collectedAt).toLocaleString()
+        JSON.stringify(lead.additionalData),
+        lead.landingPage.title,
+        new Date(lead.createdAt).toLocaleString()
       ])
     ].map(row => row.map(field => `"${field}"`).join(',')).join('\n')
 
@@ -248,11 +248,11 @@ export default function LeadsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-sm text-gray-900">{lead.page.title}</span>
+                        <span className="text-sm text-gray-900">{lead.landingPage.title}</span>
                       </td>
                       <td className="px-6 py-4">
                         <span className="text-sm text-gray-600">
-                          {new Date(lead.collectedAt).toLocaleDateString()}
+                          {new Date(lead.createdAt).toLocaleDateString()}
                         </span>
                       </td>
                       <td className="px-6 py-4">
