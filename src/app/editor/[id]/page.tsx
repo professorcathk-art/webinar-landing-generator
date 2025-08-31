@@ -13,6 +13,11 @@ interface LandingPage {
   htmlContent: string
   cssContent: string
   jsContent: string
+  isPublished?: boolean
+  publishedAt?: string
+  userId: string
+  createdAt: string
+  updatedAt: string
 }
 
 export default function EditorPage() {
