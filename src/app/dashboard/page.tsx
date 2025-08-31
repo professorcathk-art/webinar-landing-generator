@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Copy, Edit, Eye, Trash2, Plus, ExternalLink } from 'lucide-react'
+import { Copy, Edit, Eye, Trash2, Plus, ExternalLink, User } from 'lucide-react'
 
 interface LandingPage {
   id: string
