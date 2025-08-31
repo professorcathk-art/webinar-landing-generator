@@ -7,10 +7,11 @@ const nextConfig = {
   swcMinify: true,
   // Reduce bundle size
   compress: true,
-  // Disable static optimization for problematic pages
-  experimental: {
-    // Disable static generation for pages that might cause issues
-    staticPageGenerationTimeout: 0,
+  // Disable build trace collection to prevent stack overflow
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/**',
+    ],
   },
 }
 

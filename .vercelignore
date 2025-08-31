@@ -1,0 +1,48 @@
+# Exclude problematic files from Vercel build
+node_modules/.cache
+.next/cache
+.next/trace
+.vercel/output
+.vercel/build
+
+# Exclude large files that might cause build issues
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Exclude development files
+.env.local
+.env.development
+.env.test
+
+# Exclude logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
+
+# Exclude IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Exclude test files
+__tests__
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+
+# Exclude documentation
+*.md
+docs/
+
+# Exclude git
+.git
+.gitignore
