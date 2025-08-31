@@ -2,7 +2,7 @@
 
 A full-stack web application that uses AI (ChatGPT) to generate high-converting webinar landing pages based on user inputs through a structured form system.
 
-**Latest Update**: Fixed TypeScript compilation errors, added complete editor implementation, and LeadManagement component.
+**Latest Update**: Fixed TypeScript compilation errors, added complete editor implementation, LeadManagement component, and simplified build configuration.
 
 ## Features
 
