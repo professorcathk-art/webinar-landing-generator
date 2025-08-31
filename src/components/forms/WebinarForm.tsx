@@ -112,6 +112,16 @@ export default function WebinarForm() {
   }
 
   const onSubmit = async (data: FormData) => {
+    // Check if user is authenticated
+    const isAuthenticated = await checkAuthentication()
+    
+    if (!isAuthenticated) {
+      toast.error('Please sign in to generate your landing page')
+      // Redirect to login page
+      window.location.href = '/login'
+      return
+    }
+
     setIsSubmitting(true)
     try {
       // Create FormData for file upload
@@ -162,6 +172,18 @@ export default function WebinarForm() {
       })
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const checkAuthentication = async () => {
+    try {
+      const response = await fetch('/api/auth/check', {
+        method: 'GET',
+        credentials: 'include'
+      })
+      return response.ok
+    } catch (error) {
+      return false
     }
   }
 

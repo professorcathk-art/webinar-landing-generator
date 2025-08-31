@@ -91,13 +91,13 @@ export default function ChatInterface({
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: `I've updated the ${blockType} section based on your request. Here's what I changed:\n\n${data.refinedContent}`,
+        content: `I've updated the page content based on your request. The changes have been applied to your landing page.`,
         timestamp: new Date()
       }
 
       setMessages(prev => [...prev, aiMessage])
       
-      // Update the block content
+      // Update the block content with the refined HTML
       onContentUpdate(data.refinedContent)
     } catch (error) {
       console.error('Error refining block:', error)

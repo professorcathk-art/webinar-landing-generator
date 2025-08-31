@@ -138,13 +138,28 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold text-gray-900">My Landing Pages</h1>
             <p className="text-gray-600">Manage and share your webinar landing pages</p>
           </div>
-          <button
-            onClick={() => router.push('/create')}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Create New Page</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => router.push('/create')}
+              className="btn-primary flex items-center space-x-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Create New Page</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  await fetch('/api/auth/signout', { method: 'POST' })
+                  router.push('/')
+                } catch (error) {
+                  console.error('Logout error:', error)
+                }
+              }}
+              className="btn-secondary"
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       </header>
 
