@@ -1249,26 +1249,42 @@ window.onclick = function(event) {
 }
 
 // Form submission
-function handleRegistration(event) {
+async function handleRegistration(event) {
     event.preventDefault();
     
     const formData = new FormData(event.target);
     const data = {
+        pageId: window.location.search.split('=')[1] || '',
         name: formData.get('name'),
         email: formData.get('email'),
         phone: formData.get('phone'),
-        question: formData.get('question')
+        instagram: formData.get('instagram') || '',
+        additionalInfo: formData.get('question') || ''
     };
     
-    // Here you would typically send the data to your server
-    console.log('Registration data:', data);
-    
-    // Show success message
-    alert('感謝您的註冊！我們會盡快與您聯繫確認詳情。');
-    closeModal();
-    
-    // Reset form
-    event.target.reset();
+    try {
+        const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            // Show success message
+            alert('感謝您的註冊！我們會盡快與您聯繫確認詳情。');
+            closeModal();
+            
+            // Reset form
+            event.target.reset();
+        } else {
+            throw new Error('Failed to submit registration');
+        }
+    } catch (error) {
+        console.error('Error submitting registration:', error);
+        alert('抱歉，提交時發生錯誤。請稍後再試。');
+    }
 }
 
 // FAQ Toggle functionality

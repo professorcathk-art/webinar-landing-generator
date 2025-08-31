@@ -28,7 +28,15 @@ export default function LoginPage() {
       })
 
       if (response.ok) {
-        router.push('/dashboard')
+        // Check if there's a return URL
+        const searchParams = new URLSearchParams(window.location.search)
+        const returnTo = searchParams.get('returnTo')
+        
+        if (returnTo === 'create') {
+          router.push('/create')
+        } else {
+          router.push('/dashboard')
+        }
       } else {
         const data = await response.json()
         setError(data.error || 'Login failed')

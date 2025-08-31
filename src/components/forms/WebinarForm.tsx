@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, Upload, X } from 'lucide-react'
@@ -36,6 +36,8 @@ export default function WebinarForm() {
     control,
     handleSubmit,
     watch,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
@@ -45,6 +47,46 @@ export default function WebinarForm() {
   })
 
   const watchedValues = watch()
+
+  useEffect(() => {
+    // Check if there's pending form data to restore
+    const pendingFormData = sessionStorage.getItem('pendingFormData')
+    const pendingFiles = sessionStorage.getItem('pendingFiles')
+    
+    if (pendingFormData && pendingFiles) {
+      try {
+        const formData = JSON.parse(pendingFormData)
+        const files = JSON.parse(pendingFiles)
+        
+        // Restore form data
+        Object.keys(formData).forEach(key => {
+          if (key !== 'photos') {
+            setValue(key as keyof FormData, formData[key])
+          }
+        })
+        
+        // Note: We can't restore actual File objects, but we can show the user what files were selected
+        if (files.length > 0) {
+          toast.success(`Form data restored. You had ${files.length} files selected.`)
+        }
+        
+        // Clear the stored data
+        sessionStorage.removeItem('pendingFormData')
+        sessionStorage.removeItem('pendingFiles')
+        
+        // Auto-submit the form if user is authenticated
+        const checkAndSubmit = async () => {
+          const isAuthenticated = await checkAuthentication()
+          if (isAuthenticated) {
+            await onSubmit(formData)
+          }
+        }
+        checkAndSubmit()
+      } catch (error) {
+        console.error('Error restoring form data:', error)
+      }
+    }
+  }, [setValue])
 
   const steps = [
     {
@@ -116,9 +158,12 @@ export default function WebinarForm() {
     const isAuthenticated = await checkAuthentication()
     
     if (!isAuthenticated) {
+      // Store form data in sessionStorage before redirecting
+      sessionStorage.setItem('pendingFormData', JSON.stringify(data))
+      sessionStorage.setItem('pendingFiles', JSON.stringify(uploadedFiles.map(f => ({ name: f.name, size: f.size, type: f.type }))))
       toast.error('Please sign in to generate your landing page')
-      // Redirect to login page
-      window.location.href = '/login'
+      // Redirect to login page with return URL
+      window.location.href = '/login?returnTo=create'
       return
     }
 
@@ -610,7 +655,7 @@ export default function WebinarForm() {
 
         {/* Form */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <div className="space-y-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}
@@ -654,7 +699,11 @@ export default function WebinarForm() {
                 </button>
               ) : (
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={async () => {
+                    const formData = getValues()
+                    await onSubmit(formData)
+                  }}
                   disabled={isSubmitting}
                   className="btn-primary flex items-center"
                 >
@@ -663,7 +712,7 @@ export default function WebinarForm() {
                 </button>
               )}
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

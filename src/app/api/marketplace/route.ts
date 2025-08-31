@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'newest'
 
     const where: any = {
-      isListed: true,
+      OR: [
+        { isListed: true },
+        { isPublished: true }
+      ]
     }
 
     if (category && category !== 'all') {
