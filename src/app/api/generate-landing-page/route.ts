@@ -1418,34 +1418,241 @@ window.addEventListener('load', addUrgencyEffect);`,
       }
     }
 
+    // Generate CSS based on visual style preference
+    const generateCSS = (style: string) => {
+      const baseCSS = `/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    overflow-x: hidden;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}`
+
+      let styleCSS = ''
+      
+      switch (style) {
+        case '現代簡約':
+          styleCSS = `
+/* Modern Minimalist Style */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 100px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}`
+          break
+          
+        case '溫暖生活化':
+          styleCSS = `
+/* Warm Lifestyle Style */
+.hero-section {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    color: #2d3748;
+    padding: 100px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    color: #2d3748;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
+}`
+          break
+          
+        case '專業商務':
+          styleCSS = `
+/* Professional Business Style */
+.hero-section {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 100px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+}`
+          break
+          
+        case '創意活潑':
+          styleCSS = `
+/* Creative Playful Style */
+.hero-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+    color: white;
+    padding: 100px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button {
+    background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+}`
+          break
+          
+        default:
+          styleCSS = `
+/* Default Modern Style */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 100px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}`
+      }
+      
+      return baseCSS + styleCSS
+    }
+
     // Parse AI response
     let parsedResponse
     try {
       parsedResponse = JSON.parse(aiResponse)
+      // Apply visual style to AI-generated CSS
+      if (parsedResponse.css) {
+        parsedResponse.css = generateCSS(visualStyle) + '\n' + parsedResponse.css
+      } else {
+        parsedResponse.css = generateCSS(visualStyle)
+      }
     } catch (error) {
       // If AI didn't return valid JSON, create a basic structure
       parsedResponse = {
         html: aiResponse,
-        css: '',
+        css: generateCSS(visualStyle),
         js: '',
         title: 'Webinar Landing Page',
         metaDescription: 'Generated webinar landing page'
       }
     }
 
-    // Create or get default user for demo purposes
-    let defaultUser = await prisma.user.findFirst({
-      where: { email: 'demo@webinar-generator.com' }
-    })
+    // Get authenticated user from token
+    const token = request.cookies.get('auth-token')?.value
     
-    if (!defaultUser) {
-      defaultUser = await prisma.user.create({
-        data: {
-          email: 'demo@webinar-generator.com',
-          name: 'Demo User',
-          password: 'demo-password-hash', // This should be properly hashed in production
-        }
-      })
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    // Verify JWT token and get user ID
+    const { verify } = await import('jsonwebtoken')
+    const decoded = verify(token, process.env.NEXTAUTH_SECRET || 'fallback-secret') as any
+    
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid authentication' },
+        { status: 401 }
+      )
+    }
+
+    // Get the authenticated user
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      )
     }
 
     // Create landing page in database
@@ -1470,7 +1677,7 @@ window.addEventListener('load', addUrgencyEffect);`,
         htmlContent: parsedResponse.html,
         cssContent: parsedResponse.css,
         jsContent: parsedResponse.js,
-        userId: defaultUser.id,
+        userId: user.id,
       },
     })
 
