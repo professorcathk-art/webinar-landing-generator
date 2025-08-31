@@ -163,8 +163,24 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error generating landing page:', error)
+    
+    // Enhanced error logging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : 'No stack trace'
+    
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: errorStack,
+      openaiKey: process.env.OPENAI_API_KEY ? 'Configured' : 'Missing',
+      databaseUrl: process.env.DATABASE_URL ? 'Configured' : 'Missing'
+    })
+    
     return NextResponse.json(
-      { success: false, error: 'Failed to generate landing page' },
+      { 
+        success: false, 
+        error: 'Failed to generate landing page',
+        details: errorMessage
+      },
       { status: 500 }
     )
   }
