@@ -1228,7 +1228,7 @@ body {
     .registration-form {
         padding: 30px 20px;
     }
-}`
+}`,
           js: `// Modal functionality
 function openModal() {
     document.getElementById('registrationModal').style.display = 'block';
