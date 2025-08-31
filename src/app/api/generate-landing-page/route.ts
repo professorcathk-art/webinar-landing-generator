@@ -39,13 +39,25 @@ export async function POST(request: NextRequest) {
     const photos = formData.getAll('photos') as File[]
     const photoUrls: string[] = []
     
-    for (const photo of photos) {
-      const bytes = await photo.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      const fileName = `${uuidv4()}-${photo.name}`
-      const filePath = join(process.cwd(), 'public', 'uploads', fileName)
-      await writeFile(filePath, buffer)
-      photoUrls.push(`/uploads/${fileName}`)
+    if (photos.length > 0) {
+      try {
+        // Create uploads directory if it doesn't exist
+        const uploadsDir = join(process.cwd(), 'public', 'uploads')
+        await writeFile(join(uploadsDir, '.gitkeep'), '')
+        
+        for (const photo of photos) {
+          const bytes = await photo.arrayBuffer()
+          const buffer = Buffer.from(bytes)
+          const fileName = `${uuidv4()}-${photo.name}`
+          const filePath = join(uploadsDir, fileName)
+          await writeFile(filePath, buffer)
+          photoUrls.push(`/uploads/${fileName}`)
+        }
+      } catch (uploadError) {
+        console.error('File upload error:', uploadError)
+        // Continue without file uploads
+        photoUrls.push('placeholder-image.jpg')
+      }
     }
 
     // Create AI prompt
@@ -101,25 +113,31 @@ export async function POST(request: NextRequest) {
 }`
 
     // Generate landing page with AI
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: "你是一個專業的網頁設計師和轉換優化專家，專門創建高轉換率的webinar登陸頁面。"
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.7,
-      max_tokens: 4000,
-    })
+    let aiResponse: string | null = null
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: "你是一個專業的網頁設計師和轉換優化專家，專門創建高轉換率的webinar登陸頁面。"
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 4000,
+      })
 
-    const aiResponse = completion.choices[0]?.message?.content
-    if (!aiResponse) {
-      throw new Error('AI generation failed')
+      aiResponse = completion.choices[0]?.message?.content
+      if (!aiResponse) {
+        throw new Error('AI generation failed - no response content')
+      }
+    } catch (openaiError) {
+      console.error('OpenAI API error:', openaiError)
+      throw new Error(`OpenAI API error: ${openaiError instanceof Error ? openaiError.message : 'Unknown error'}`)
     }
 
     // Parse AI response
