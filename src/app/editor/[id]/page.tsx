@@ -30,45 +30,19 @@ export default function EditorPage() {
   const fetchLandingPage = async () => {
     try {
       setLoading(true)
-      // This would be replaced with actual API call
-      // const response = await fetch(`/api/landing-pages/${pageId}`)
-      // const data = await response.json()
+      const response = await fetch(`/api/landing-pages/${pageId}`)
       
-      // Mock data for now
-      const mockData: LandingPage = {
-        id: pageId,
-        title: 'Sample Landing Page',
-        content: {
-          blocks: [
-            {
-              id: 'hero',
-              type: 'hero',
-              content: {
-                title: 'Welcome to Our Webinar',
-                subtitle: 'Learn the secrets of success',
-                cta: 'Register Now'
-              }
-            },
-            {
-              id: 'features',
-              type: 'features',
-              content: {
-                title: 'What You\'ll Learn',
-                items: [
-                  'Strategy 1',
-                  'Strategy 2',
-                  'Strategy 3'
-                ]
-              }
-            }
-          ]
-        },
-        htmlContent: '<div>Sample HTML</div>',
-        cssContent: 'body { font-family: Arial; }',
-        jsContent: 'console.log("Hello");'
+      if (!response.ok) {
+        throw new Error('Failed to fetch landing page')
       }
       
-      setLandingPage(mockData)
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to load landing page')
+      }
+      
+      setLandingPage(result.data)
     } catch (err) {
       setError('Failed to load landing page')
       console.error('Error fetching landing page:', err)
@@ -79,17 +53,32 @@ export default function EditorPage() {
 
   const handleSave = async (updatedContent: any) => {
     try {
-      // This would be replaced with actual API call
-      // await fetch(`/api/landing-pages/${pageId}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(updatedContent)
-      // })
+      const response = await fetch(`/api/landing-pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          htmlContent: updatedContent.htmlContent || landingPage?.htmlContent || '',
+          cssContent: updatedContent.cssContent || landingPage?.cssContent || '',
+          jsContent: updatedContent.jsContent || landingPage?.jsContent || '',
+          title: updatedContent.title || landingPage?.title || ''
+        })
+      })
       
-      setLandingPage(prev => prev ? { ...prev, content: updatedContent } : null)
+      if (!response.ok) {
+        throw new Error('Failed to save page')
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save page')
+      }
+      
+      setLandingPage(prev => prev ? { ...prev, ...result.data } : null)
       console.log('Page saved successfully')
     } catch (err) {
       console.error('Error saving page:', err)
+      throw err // Re-throw to show error to user
     }
   }
 
