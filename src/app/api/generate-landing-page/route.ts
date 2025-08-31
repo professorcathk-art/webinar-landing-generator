@@ -10,6 +10,14 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
+export async function GET(request: NextRequest) {
+  return NextResponse.json({
+    success: true,
+    message: 'Generate landing page API is accessible',
+    timestamp: new Date().toISOString()
+  })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
