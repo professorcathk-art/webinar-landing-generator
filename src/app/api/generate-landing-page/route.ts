@@ -1263,7 +1263,7 @@ async function handleRegistration(event) {
     };
     
     try {
-        const response = await fetch('/api/leads', {
+        const response = await fetch(window.location.origin + '/api/leads', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

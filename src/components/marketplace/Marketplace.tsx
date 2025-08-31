@@ -17,6 +17,7 @@ interface MarketplacePage {
   createdAt: string
   tags: string[]
   isListed: boolean
+  isPublished: boolean
 }
 
 export default function Marketplace() {
@@ -68,7 +69,7 @@ export default function Marketplace() {
   }
 
   const filterAndSortPages = () => {
-    let filtered = pages.filter(page => page.isListed)
+    let filtered = pages.filter(page => page.isListed || page.isPublished)
 
     // Filter by search term
     if (searchTerm) {

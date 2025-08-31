@@ -23,7 +23,29 @@ export default function AdminUsersPage() {
   const router = useRouter()
 
   useEffect(() => {
-    fetchUsers()
+    // Check if user is admin
+    const checkAdminAccess = async () => {
+      try {
+        const response = await fetch('/api/auth/check')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.user.email === 'professor.cat.hk@gmail.com') {
+            fetchUsers()
+          } else {
+            setError('Access denied. Admin privileges required.')
+            router.push('/dashboard')
+          }
+        } else {
+          setError('Authentication required.')
+          router.push('/login')
+        }
+      } catch (error) {
+        setError('Authentication required.')
+        router.push('/login')
+      }
+    }
+    
+    checkAdminAccess()
   }, [])
 
   const fetchUsers = async () => {

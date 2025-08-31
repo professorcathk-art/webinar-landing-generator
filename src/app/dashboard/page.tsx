@@ -21,10 +21,26 @@ export default function DashboardPage() {
   const [landingPages, setLandingPages] = useState<LandingPage[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    fetchLandingPages()
+    const checkAdminAndFetch = async () => {
+      try {
+        const response = await fetch('/api/auth/check')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.user.email === 'professor.cat.hk@gmail.com') {
+            setIsAdmin(true)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking admin status:', error)
+      }
+      fetchLandingPages()
+    }
+    
+    checkAdminAndFetch()
   }, [])
 
   const fetchLandingPages = async () => {
@@ -147,13 +163,15 @@ export default function DashboardPage() {
                 <User className="h-4 w-4" />
                 <span>View Leads</span>
               </button>
-              <button
-                onClick={() => router.push('/admin/users')}
-                className="btn-secondary flex items-center space-x-2"
-              >
-                <User className="h-4 w-4" />
-                <span>All Users</span>
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => router.push('/admin/users')}
+                  className="btn-secondary flex items-center space-x-2"
+                >
+                  <User className="h-4 w-4" />
+                  <span>All Users</span>
+                </button>
+              )}
               <button
                 onClick={() => router.push('/create')}
                 className="btn-primary flex items-center space-x-2"

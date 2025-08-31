@@ -196,8 +196,8 @@ export default function WebinarForm() {
       const result = await response.json()
       toast.success('Landing page generated successfully!')
       
-      // Redirect to preview first, then user can go to editor
-      window.location.href = `/preview?id=${result.pageId}`
+      // Redirect to editor page
+      window.location.href = `/editor/${result.pageId}`
     } catch (error) {
       console.error('Error:', error)
       
