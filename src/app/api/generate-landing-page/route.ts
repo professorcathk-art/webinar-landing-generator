@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || process.env.VERCEL_OPENAI_API_KEY,
 })
 
 export async function GET(request: NextRequest) {
