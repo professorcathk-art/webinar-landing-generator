@@ -18,21 +18,22 @@ function PreviewContent() {
   const loadPreviewData = async () => {
     try {
       setLoading(true)
-      // This would be replaced with actual API call
-      // const response = await fetch(`/api/landing-pages/${pageId}/preview`)
-      // const data = await response.json()
+      const response = await fetch(`/api/landing-pages/${pageId}`)
       
-      // Mock data for now
-      const mockData = {
-        title: 'Sample Landing Page Preview',
-        htmlContent: '<div class="preview-container"><h1>Landing Page Preview</h1><p>This is a preview of your landing page.</p></div>',
-        cssContent: 'body { font-family: Arial, sans-serif; margin: 0; padding: 20px; } .preview-container { max-width: 800px; margin: 0 auto; }',
-        jsContent: 'console.log("Preview loaded");'
+      if (!response.ok) {
+        throw new Error('Failed to fetch page data')
       }
       
-      setPreviewData(mockData)
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to load page data')
+      }
+      
+      setPreviewData(result.data)
     } catch (error) {
       console.error('Error loading preview:', error)
+      setPreviewData(null)
     } finally {
       setLoading(false)
     }

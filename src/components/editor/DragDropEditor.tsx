@@ -260,7 +260,7 @@ export default function DragDropEditor({ initialContent, pageId }: EditorProps) 
   const savePage = async () => {
     setIsSaving(true)
     try {
-      const response = await fetch(`/api/pages/${pageId}`, {
+      const response = await fetch(`/api/landing-pages/${pageId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
