@@ -179,7 +179,12 @@ export async function POST(request: NextRequest) {
       { 
         success: false, 
         error: 'Failed to generate landing page',
-        details: errorMessage
+        details: errorMessage,
+        timestamp: new Date().toISOString(),
+        environment: {
+          openaiKey: process.env.OPENAI_API_KEY ? 'Configured' : 'Missing',
+          databaseUrl: process.env.DATABASE_URL ? 'Configured' : 'Missing'
+        }
       },
       { status: 500 }
     )

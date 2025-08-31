@@ -145,7 +145,21 @@ export default function WebinarForm() {
       window.location.href = `/editor/${result.pageId}`
     } catch (error) {
       console.error('Error:', error)
-      toast.error('Failed to generate landing page. Please try again.')
+      
+      // Show more detailed error information
+      let errorMessage = 'Failed to generate landing page. Please try again.'
+      
+      if (error instanceof Error) {
+        errorMessage = `Error: ${error.message}`
+      }
+      
+      toast.error(errorMessage)
+      
+      // Also log to console for debugging
+      console.error('Detailed error:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
+      })
     } finally {
       setIsSubmitting(false)
     }
