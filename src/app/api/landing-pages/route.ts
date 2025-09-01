@@ -22,15 +22,25 @@ export async function GET(request: NextRequest) {
     if (!decoded || !decoded.userId) {
       return NextResponse.json(
         { success: false, error: 'Invalid authentication' },
-        { status: 401 }
+        { status: 500 }
       )
     }
 
-    // Get pages for the authenticated user only
+    // Check if user is admin
+    const isAdmin = decoded.email === 'professor.cat.hk@gmail.com'
+
+    // Build where clause based on user role
+    let whereClause: any = {}
+    
+    if (!isAdmin) {
+      // Regular users only see their own pages
+      whereClause.userId = decoded.userId
+    }
+    // Admin users can see all pages (no where clause restriction)
+
+    // Get pages based on user role
     const landingPages = await prisma.landingPage.findMany({
-      where: {
-        userId: decoded.userId
-      },
+      where: whereClause,
       orderBy: {
         updatedAt: 'desc'
       },
@@ -44,7 +54,8 @@ export async function GET(request: NextRequest) {
         updatedAt: true,
         htmlContent: true,
         cssContent: true,
-        jsContent: true
+        jsContent: true,
+        userId: isAdmin // Include userId for admin to see who owns each page
       }
     })
 

@@ -73,21 +73,51 @@ export async function GET(request: NextRequest) {
     const pageId = searchParams.get('pageId')
     const userId = searchParams.get('userId')
 
-    if (!userId) {
+    // Get authenticated user from token
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
       return NextResponse.json(
-        { error: 'User ID is required' },
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    // Verify JWT token and get user ID
+    const { verify } = await import('jsonwebtoken')
+    const decoded = verify(token, process.env.NEXTAUTH_SECRET || 'fallback-secret') as any
+    
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json(
+        { error: 'Invalid authentication' },
         { status: 400 }
       )
     }
 
-    let whereClause: any = {
-      landingPage: {
-        userId: userId
-      }
-    }
+    // Check if the authenticated user is admin
+    const isAdmin = decoded.email === 'professor.cat.hk@gmail.com'
 
-    if (pageId) {
-      whereClause.landingPageId = pageId
+    let whereClause: any = {}
+
+    if (isAdmin) {
+      // Admin can see all leads
+      if (pageId) {
+        whereClause.landingPageId = pageId
+      }
+      if (userId) {
+        whereClause.landingPage = {
+          userId: userId
+        }
+      }
+    } else {
+      // Regular users can only see leads from their own pages
+      whereClause.landingPage = {
+        userId: decoded.userId
+      }
+      
+      if (pageId) {
+        whereClause.landingPageId = pageId
+      }
     }
 
     const leads = await prisma.lead.findMany({

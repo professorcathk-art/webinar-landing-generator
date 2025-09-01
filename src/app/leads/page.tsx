@@ -18,6 +18,12 @@ interface Lead {
   }
 }
 
+interface User {
+  id: string
+  email: string
+  name: string
+}
+
 export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
@@ -25,12 +31,46 @@ export default function LeadsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedPage, setSelectedPage] = useState('all')
   const [pages, setPages] = useState<Array<{id: string, title: string}>>([])
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    fetchLeads()
-    fetchPages()
+    checkAuthAndFetchData()
   }, [])
+
+  const checkAuthAndFetchData = async () => {
+    try {
+      // Check authentication first
+      const authResponse = await fetch('/api/auth/check')
+      if (!authResponse.ok) {
+        router.push('/login')
+        return
+      }
+
+      const authData = await authResponse.json()
+      if (!authData.authenticated) {
+        router.push('/login')
+        return
+      }
+
+      setCurrentUser(authData.user)
+      
+      // Check if user is admin
+      if (authData.user.email === 'professor.cat.hk@gmail.com') {
+        setIsAdmin(true)
+      }
+
+      // Fetch leads and pages for the authenticated user
+      await Promise.all([
+        fetchLeads(),
+        fetchPages()
+      ])
+    } catch (error) {
+      console.error('Authentication error:', error)
+      router.push('/login')
+    }
+  }
 
   const fetchLeads = async () => {
     try {
@@ -71,7 +111,7 @@ export default function LeadsPage() {
     }
   }
 
-  const filteredLeads = leads.filter(lead => {
+  const filteredLeads = leads.filter((lead: Lead) => {
     const matchesSearch = 
       lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,7 +126,7 @@ export default function LeadsPage() {
   const exportLeads = () => {
     const csvContent = [
       ['Name', 'Email', 'Phone', 'Instagram', 'Additional Info', 'Page', 'Collected At'],
-      ...filteredLeads.map(lead => [
+      ...filteredLeads.map((lead: Lead) => [
         lead.name,
         lead.email,
         lead.phone,
@@ -95,7 +135,7 @@ export default function LeadsPage() {
         lead.landingPage.title,
         new Date(lead.createdAt).toLocaleString()
       ])
-    ].map(row => row.map(field => `"${field}"`).join(',')).join('\n')
+    ].map((row: any[]) => row.map((field: any) => `"${field}"`).join(',')).join('\n')
 
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
@@ -124,7 +164,9 @@ export default function LeadsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Lead Management</h1>
-            <p className="text-gray-600">View and manage all collected leads</p>
+            <p className="text-gray-600">
+              {isAdmin ? 'View and manage all leads from all users' : 'View and manage your collected leads'}
+            </p>
           </div>
           <div className="flex items-center space-x-3">
             <button
@@ -184,7 +226,7 @@ export default function LeadsPage() {
             <div className="text-red-600 text-xl mb-4">⚠️</div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Leads</h2>
             <p className="text-gray-600 mb-4">{error}</p>
-            <button onClick={fetchLeads} className="btn-primary">
+            <button onClick={checkAuthAndFetchData} className="btn-primary">
               Try Again
             </button>
           </div>
@@ -219,7 +261,7 @@ export default function LeadsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredLeads.map((lead) => (
+                  {filteredLeads.map((lead: Lead) => (
                     <tr key={lead.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="space-y-1">
