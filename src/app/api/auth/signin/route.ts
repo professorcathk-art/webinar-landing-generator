@@ -22,16 +22,7 @@ export async function POST(request: NextRequest) {
     // Find user by email
     console.log('Looking up user by email:', email)
     const user = await prisma.user.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        password: true,
-        createdAt: true,
-        updatedAt: true
-        // Exclude customDomain to avoid the missing column error
-      }
+      where: { email }
     })
     console.log('User found:', user ? 'Yes' : 'No')
 
