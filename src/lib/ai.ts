@@ -1,7 +1,8 @@
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1",
+  baseURL: "https://api.aimlapi.com/v1",
 })
 
 export interface BlockRefinementRequest {
