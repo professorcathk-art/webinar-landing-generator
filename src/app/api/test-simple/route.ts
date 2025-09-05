@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     
     // Try the most basic model first
     const completion = await openai.chat.completions.create({
-      model: "openai/gpt-3.5-turbo",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "user",
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       success: true,
       message: 'Simple test successful',
       response: response,
-      model: "openai/gpt-3.5-turbo",
+      model: "gpt-3.5-turbo",
       timestamp: new Date().toISOString()
     })
 
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
         error: 'Simple test failed',
         details: error instanceof Error ? error.message : 'Unknown error',
         status: (error as any)?.status,
-        model: "openai/gpt-3.5-turbo",
+        model: "gpt-3.5-turbo",
         timestamp: new Date().toISOString()
       },
       { status: 500 }

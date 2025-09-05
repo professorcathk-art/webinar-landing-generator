@@ -19,11 +19,11 @@ export async function GET(request: NextRequest) {
   
   // Test different models to see which ones work
   const modelsToTest = [
-    "openai/gpt-4o",
-    "openai/gpt-4",
-    "openai/gpt-3.5-turbo",
-    "openai/gpt-4-turbo",
-    "openai/gpt-4o-mini"
+    "gpt-4o",
+    "gpt-4",
+    "gpt-3.5-turbo",
+    "gpt-4-turbo",
+    "gpt-4o-mini"
   ]
   
   const results = []
