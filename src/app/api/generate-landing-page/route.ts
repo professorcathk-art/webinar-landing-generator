@@ -207,9 +207,8 @@ export async function POST(request: NextRequest) {
         response: (openaiError as any)?.response?.data
       })
       
-      // If quota exceeded, use mock data for testing
-      if (openaiError instanceof Error && openaiError.message.includes('429')) {
-        console.log('Using mock data due to OpenAI quota exceeded')
+      // If API fails (quota exceeded, 403, or any other error), use mock data for testing
+      console.log('Using mock data due to API error:', openaiError instanceof Error ? openaiError.message : 'Unknown error')
         aiResponse = JSON.stringify({
           html: `<!DOCTYPE html>
 <html lang="zh-TW">
