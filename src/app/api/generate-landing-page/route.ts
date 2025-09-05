@@ -7,7 +7,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || process.env.VERCEL_OPENAI_API_KEY,
+  apiKey: "dd1c7187d68d479985be534c775535b1",
+  baseURL: "https://api.aimlapi.com/v1",
 })
 
 export async function GET(request: NextRequest) {
@@ -172,7 +173,7 @@ export async function POST(request: NextRequest) {
     let aiResponse: string | null = null
     try {
       const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",

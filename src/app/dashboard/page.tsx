@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Copy, Edit, Eye, Trash2, Plus, ExternalLink, User } from 'lucide-react'
+import { Copy, Edit, Eye, Trash2, Plus, ExternalLink, User, Settings } from 'lucide-react'
 
 interface LandingPage {
   id: string
@@ -156,6 +156,13 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-3">
+              <button
+                onClick={() => router.push('/account')}
+                className="btn-secondary flex items-center space-x-2"
+              >
+                <Settings className="h-4 w-4" />
+                <span>Account</span>
+              </button>
               <button
                 onClick={() => router.push('/leads')}
                 className="btn-secondary flex items-center space-x-2"

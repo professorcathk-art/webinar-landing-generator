@@ -194,10 +194,34 @@ export default function WebinarForm() {
       }
 
       const result = await response.json()
-      toast.success('Landing page generated successfully!')
       
-      // Redirect to editor page
-      window.location.href = `/editor/${result.pageId}`
+      // Save form submission for history
+      try {
+        await fetch('/api/form-submissions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            businessInfo: data.businessInfo,
+            webinarContent: data.webinarContent,
+            targetAudience: data.targetAudience,
+            webinarInfo: data.webinarInfo,
+            instructorCreds: data.instructorCreds,
+            contactFields: data.contactFields,
+            style: data.visualStyle || '現代簡約',
+            brandColors: data.brandColors,
+            uniqueSellingPoints: data.uniqueSellingPoints,
+            upsellProducts: data.upsellProducts,
+            specialRequirements: data.specialRequirements,
+          }),
+        })
+      } catch (error) {
+        console.error('Error saving form submission:', error)
+      }
+      
+      // Redirect to loading page
+      window.location.href = `/generating?pageId=${result.pageId}`
     } catch (error) {
       console.error('Error:', error)
       

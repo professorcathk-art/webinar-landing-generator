@@ -11,16 +11,18 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  password     String
+  customDomain String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Relations
-  landingPages LandingPage[]
-  leads        Lead[]
+  landingPages    LandingPage[]
+  leads           Lead[]
+  formSubmissions FormSubmission[]
 
   @@map("users")
 }
@@ -96,4 +98,27 @@ model PageVersion {
   createdAt     DateTime @default(now())
   
   @@map("page_versions")
+}
+
+model FormSubmission {
+  id                   String   @id @default(cuid())
+  businessInfo         String   @db.Text
+  webinarContent       String   @db.Text
+  targetAudience       String   @db.Text
+  webinarInfo          String   @db.Text
+  instructorCreds      String   @db.Text
+  contactFields        Json     @default("[]")
+  style                String
+  brandColors          Json?
+  uniqueSellingPoints  String?  @db.Text
+  upsellProducts       String?  @db.Text
+  specialRequirements  String?  @db.Text
+  landingPageId        String?
+  createdAt            DateTime @default(now())
+  
+  // Relations
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("form_submissions")
 }
