@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
       
       // If API fails (quota exceeded, 403, or any other error), use mock data for testing
       console.log('Using mock data due to API error:', openaiError instanceof Error ? openaiError.message : 'Unknown error')
-        aiResponse = JSON.stringify({
+      aiResponse = JSON.stringify({
           html: `<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -1456,9 +1456,6 @@ window.addEventListener('load', addUrgencyEffect);`,
           title: `${businessInfo} - 專業Webinar`,
           metaDescription: `${webinarContent} - 立即註冊參加專業webinar，掌握${businessInfo}的核心技能`
         })
-      } else {
-        throw new Error(`OpenAI API error: ${openaiError instanceof Error ? openaiError.message : 'Unknown error'}`)
-      }
     }
 
     // Generate CSS based on visual style preference
