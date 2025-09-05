@@ -33,16 +33,8 @@ export default function LoginPage() {
         const returnTo = searchParams.get('returnTo')
         
         if (returnTo === 'create') {
-          // Check if there's pending form data to restore
-          const pendingFormData = sessionStorage.getItem('pendingFormData')
-          if (pendingFormData) {
-            // Clear the pending data and redirect to create page
-            sessionStorage.removeItem('pendingFormData')
-            sessionStorage.removeItem('pendingFiles')
-            router.push('/create')
-          } else {
-            router.push('/create')
-          }
+          // Don't clear the pending data here - let the form component handle it
+          router.push('/create')
         } else {
           router.push('/dashboard')
         }

@@ -172,14 +172,14 @@ export async function POST(request: NextRequest) {
     // Generate landing page with AI
     let aiResponse: string | null = null
     try {
-      console.log('Attempting to call AIML API with model: openai/gpt-4o')
+      console.log('Attempting to call AIML API with model: gpt-4o')
       const apiKey = process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1"
       console.log('API Key (first 8 chars):', apiKey.substring(0, 8) + "...")
       console.log('Base URL:', "https://api.aimlapi.com/v1")
       console.log('Using environment variable:', !!process.env.OPENAI_API_KEY)
       
       const completion = await openai.chat.completions.create({
-        model: "openai/gpt-4o",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
       
       // If API fails (quota exceeded, 403, or any other error), use mock data for testing
       console.log('Using mock data due to API error:', openaiError instanceof Error ? openaiError.message : 'Unknown error')
-      aiResponse = JSON.stringify({
+        aiResponse = JSON.stringify({
           html: `<!DOCTYPE html>
 <html lang="zh-TW">
 <head>

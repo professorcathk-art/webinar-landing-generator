@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     let openaiTest = 'Not tested'
     try {
       const completion = await openai.chat.completions.create({
-        model: "openai/gpt-4o",
+        model: "gpt-4o",
         messages: [
           {
             role: "user",
