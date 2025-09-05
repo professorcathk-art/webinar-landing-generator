@@ -65,9 +65,18 @@ export async function POST(request: NextRequest) {
     return response
 
   } catch (error) {
-    console.error('Signin error:', error)
+    console.error('Signin error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      databaseUrl: process.env.DATABASE_URL ? 'Configured' : 'Missing',
+      nextauthSecret: process.env.NEXTAUTH_SECRET ? 'Configured' : 'Missing'
+    })
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   } finally {

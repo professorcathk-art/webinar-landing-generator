@@ -3,43 +3,40 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
-    // Test database connection
-    await prisma.$connect()
+    console.log('Testing database connection...')
     
-    // Test query to check if tables exist
-    const tableCount = await prisma.$queryRaw`
-      SELECT COUNT(*)::int as count 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public' 
-      AND table_name IN ('users', 'landing_pages', 'leads', 'page_versions')
-    `
-    
-    // Convert BigInt to regular number for JSON serialization
-    const tableCountNumber = Array.isArray(tableCount) && tableCount.length > 0 
-      ? Number(tableCount[0].count) 
-      : 0
+    // Test basic database connection
+    const userCount = await prisma.user.count()
+    console.log('Database connection successful, user count:', userCount)
     
     return NextResponse.json({
       success: true,
       message: 'Database connection successful',
-      tablesFound: tableCountNumber,
-      databaseUrl: process.env.DATABASE_URL ? 'Configured' : 'Not configured',
+      userCount,
+      timestamp: new Date().toISOString(),
       environment: {
-        openaiKey: process.env.OPENAI_API_KEY ? 'Configured' : 'Missing',
-        nextauthSecret: process.env.NEXTAUTH_SECRET ? 'Configured' : 'Missing',
-        nextauthUrl: process.env.NEXTAUTH_URL ? 'Configured' : 'Missing'
+        databaseUrl: process.env.DATABASE_URL ? 'Configured' : 'Missing',
+        nodeEnv: process.env.NODE_ENV || 'Not set'
       }
     })
 
   } catch (error) {
-    console.error('Database connection error:', error)
+    console.error('Database test error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      databaseUrl: process.env.DATABASE_URL ? 'Configured' : 'Missing'
+    })
+    
     return NextResponse.json(
       { 
-        success: false, 
+        success: false,
         error: 'Database connection failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     )
