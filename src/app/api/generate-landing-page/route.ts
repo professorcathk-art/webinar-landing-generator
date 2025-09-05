@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 const openai = new OpenAI({
-  apiKey: "dd1c7187d68d479985be534c775535b1",
+  apiKey: process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1",
   baseURL: "https://api.aimlapi.com/v1",
 })
 
@@ -172,6 +172,12 @@ export async function POST(request: NextRequest) {
     // Generate landing page with AI
     let aiResponse: string | null = null
     try {
+      console.log('Attempting to call AIML API with model: gpt-4o')
+      const apiKey = process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1"
+      console.log('API Key (first 8 chars):', apiKey.substring(0, 8) + "...")
+      console.log('Base URL:', "https://api.aimlapi.com/v1")
+      console.log('Using environment variable:', !!process.env.OPENAI_API_KEY)
+      
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -192,8 +198,14 @@ export async function POST(request: NextRequest) {
       if (!aiResponse) {
         throw new Error('AI generation failed - no response content')
       }
+      console.log('AI API call successful')
     } catch (openaiError) {
-      console.error('OpenAI API error:', openaiError)
+      console.error('OpenAI API error details:', {
+        message: openaiError instanceof Error ? openaiError.message : 'Unknown error',
+        status: (openaiError as any)?.status,
+        statusText: (openaiError as any)?.statusText,
+        response: (openaiError as any)?.response?.data
+      })
       
       // If quota exceeded, use mock data for testing
       if (openaiError instanceof Error && openaiError.message.includes('429')) {
