@@ -13,7 +13,7 @@ const openai = new OpenAI({
 export async function GET(request: NextRequest) {
   return NextResponse.json({
     success: true,
-    message: 'Generate landing page API is accessible',
+    message: 'Generate landing page API is accessible - Updated',
     timestamp: new Date().toISOString()
   })
 }
