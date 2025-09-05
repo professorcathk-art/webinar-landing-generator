@@ -58,7 +58,7 @@ Please provide only the refined HTML content without any additional explanations
     // Generate refined content with AI
     console.log('Attempting to call AIML API for content refinement with model: gpt-4o')
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "openai/gpt-4o",
       messages: [
         {
           role: "system",

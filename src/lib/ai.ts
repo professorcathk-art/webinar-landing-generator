@@ -41,7 +41,7 @@ export async function refineBlock(request: BlockRefinementRequest) {
     Return only the refined HTML content for this specific block.`
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "openai/gpt-4",
       messages: [
         {
           role: "system",
@@ -117,7 +117,7 @@ export async function generateCompletePage(formData: any) {
 }`
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "openai/gpt-4",
       messages: [
         {
           role: "system",

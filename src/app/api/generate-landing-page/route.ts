@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
       console.log('Using environment variable:', !!process.env.OPENAI_API_KEY)
       
       const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "openai/gpt-4o",
         messages: [
           {
             role: "system",
