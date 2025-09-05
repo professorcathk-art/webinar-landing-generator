@@ -37,6 +37,18 @@ export default function DashboardPage() {
       } catch (error) {
         console.error('Error checking admin status:', error)
       }
+      
+      // Check if there's a pending page generation
+      const urlParams = new URLSearchParams(window.location.search)
+      const pageId = urlParams.get('pageId')
+      const generating = urlParams.get('generating')
+      
+      if (pageId && generating === 'true') {
+        // Redirect to generating page if there's a pending generation
+        router.push(`/generating?pageId=${pageId}`)
+        return
+      }
+      
       fetchLandingPages()
     }
     

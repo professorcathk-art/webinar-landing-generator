@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Edit, ExternalLink } from 'lucide-react'
 
 // Declare global functions for TypeScript
 declare global {
@@ -14,6 +15,7 @@ declare global {
 
 function PreviewContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const pageId = searchParams.get('id')
   const [previewData, setPreviewData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -166,10 +168,28 @@ function PreviewContent() {
             <h1 className="text-lg font-semibold text-gray-900">
               Preview: {previewData.title}
             </h1>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500">Desktop</span>
-              <span className="text-sm text-gray-500">•</span>
-              <span className="text-sm text-gray-500">Mobile</span>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">Desktop</span>
+                <span className="text-sm text-gray-500">•</span>
+                <span className="text-sm text-gray-500">Mobile</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => router.push(`/editor/${pageId}`)}
+                  className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>Edit</span>
+                </button>
+                <button
+                  onClick={() => window.open(`/preview?id=${pageId}`, '_blank')}
+                  className="flex items-center space-x-1 px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  <span>Open in New Tab</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
