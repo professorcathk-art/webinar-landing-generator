@@ -182,16 +182,12 @@ export async function POST(request: NextRequest) {
         model: "gpt-4o",
         messages: [
           {
-            role: "system",
-            content: "你是一個專業的網頁設計師和轉換優化專家，專門創建高轉換率的webinar登陸頁面。你擅長創建視覺吸引力強、轉換率高的專業landing page，包含完整的HTML結構、現代CSS樣式、互動JavaScript功能，以及符合轉換心理學的內容設計。請確保生成的頁面具有專業的外觀、響應式設計、完整的表單功能，並且完全符合客戶的業務需求。"
-          },
-          {
             role: "user",
-            content: prompt
+            content: `你是一個專業的網頁設計師和轉換優化專家，專門創建高轉換率的webinar登陸頁面。你擅長創建視覺吸引力強、轉換率高的專業landing page，包含完整的HTML結構、現代CSS樣式、互動JavaScript功能，以及符合轉換心理學的內容設計。請確保生成的頁面具有專業的外觀、響應式設計、完整的表單功能，並且完全符合客戶的業務需求。
+
+${prompt}`
           }
-        ],
-        temperature: 0.7,
-        max_tokens: 8000,
+        ]
       })
 
       aiResponse = completion.choices[0]?.message?.content

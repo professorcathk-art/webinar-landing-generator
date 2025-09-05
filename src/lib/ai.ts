@@ -44,16 +44,12 @@ export async function refineBlock(request: BlockRefinementRequest) {
       model: "gpt-4",
       messages: [
         {
-          role: "system",
-          content: "You are a professional web developer specializing in high-converting landing pages."
-        },
-        {
           role: "user",
-          content: prompt
+          content: `You are a professional web developer specializing in high-converting landing pages.
+
+${prompt}`
         }
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
+      ]
     })
 
     return completion.choices[0]?.message?.content || ''
@@ -120,16 +116,12 @@ export async function generateCompletePage(formData: any) {
       model: "gpt-4",
       messages: [
         {
-          role: "system",
-          content: "你是一個專業的網頁設計師和轉換優化專家，專門創建高轉換率的webinar登陸頁面。"
-        },
-        {
           role: "user",
-          content: prompt
+          content: `你是一個專業的網頁設計師和轉換優化專家，專門創建高轉換率的webinar登陸頁面。
+
+${prompt}`
         }
-      ],
-      temperature: 0.7,
-      max_tokens: 4000,
+      ]
     })
 
     const response = completion.choices[0]?.message?.content

@@ -61,16 +61,12 @@ Please provide only the refined HTML content without any additional explanations
       model: "gpt-4o",
       messages: [
         {
-          role: "system",
-          content: "You are a professional web developer and copywriter specializing in high-converting landing pages. You excel at refining content while maintaining design consistency and improving conversion rates."
-        },
-        {
           role: "user",
-          content: prompt
+          content: `You are a professional web developer and copywriter specializing in high-converting landing pages. You excel at refining content while maintaining design consistency and improving conversion rates.
+
+${prompt}`
         }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7,
+      ]
     })
 
     const refinedContent = completion.choices[0]?.message?.content
