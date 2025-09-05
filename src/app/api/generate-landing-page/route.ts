@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     // Generate landing page with AI
     let aiResponse: string | null = null
     try {
-      console.log('Attempting to call AIML API with model: gpt-4o')
+      console.log('Attempting to call AIML API with model: openai/gpt-4o')
       const apiKey = process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1"
       console.log('API Key (first 8 chars):', apiKey.substring(0, 8) + "...")
       console.log('Base URL:', "https://api.aimlapi.com/v1")
