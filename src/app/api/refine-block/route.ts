@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1",
+  baseURL: "https://api.aimlapi.com/v1",
 })
 
 export async function POST(request: NextRequest) {
@@ -55,8 +56,9 @@ Return the complete refined HTML content that can be directly used to replace th
 Please provide only the refined HTML content without any additional explanations or markdown formatting.`
 
     // Generate refined content with AI
+    console.log('Attempting to call AIML API for content refinement with model: gpt-4o')
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
