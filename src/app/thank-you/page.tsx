@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 interface UpsellProduct {
@@ -14,7 +14,7 @@ interface UpsellProduct {
   popular?: boolean
 }
 
-export default function ThankYouPage() {
+function ThankYouContent() {
   const [upsellProducts, setUpsellProducts] = useState<UpsellProduct[]>([])
   const [userName, setUserName] = useState('')
   const searchParams = useSearchParams()
@@ -179,5 +179,20 @@ export default function ThankYouPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ThankYouPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ThankYouContent />
+    </Suspense>
   )
 }
