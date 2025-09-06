@@ -522,6 +522,9 @@ ${filledFields}
     const finalCSS = templateCSS + '\n' + generateCSS(visualStyle, brandColors)
     const finalJS = templateJS
     
+    // Store original parsed response for database
+    const originalParsedResponse = parsedResponse
+    
     // Create final response object
     const finalResponse = {
       html: finalHTML,
@@ -540,24 +543,24 @@ ${filledFields}
         title: parsedResponse.title,
         slug: `landing-page-${uuidv4()}`,
         content: {
-          title: parsedResponse.title,
-          metaDescription: parsedResponse.metaDescription,
-          brandName: parsedResponse.brandName,
-          heroTitle: parsedResponse.heroTitle,
-          heroSubtitle: parsedResponse.heroSubtitle,
-          ctaButton: parsedResponse.ctaButton,
-          valuePropositionTitle: parsedResponse.valuePropositionTitle,
-          valuePoints: parsedResponse.valuePoints,
-          socialProofTitle: parsedResponse.socialProofTitle,
-          testimonials: parsedResponse.testimonials,
-          formTitle: parsedResponse.formTitle,
-          formSubtitle: parsedResponse.formSubtitle,
-          submitButton: parsedResponse.submitButton,
-          thankYouTitle: parsedResponse.thankYouTitle,
-          thankYouMessage: parsedResponse.thankYouMessage,
-          nextSteps: parsedResponse.nextSteps,
-          videoTitle: parsedResponse.videoTitle,
-          whatsappText: parsedResponse.whatsappText
+          title: originalParsedResponse.pageTitle,
+          metaDescription: originalParsedResponse.heroSubtitle,
+          brandName: originalParsedResponse.brandName,
+          heroTitle: originalParsedResponse.heroTitle,
+          heroSubtitle: originalParsedResponse.heroSubtitle,
+          ctaButton: originalParsedResponse.ctaButton,
+          valuePropositionTitle: originalParsedResponse.valuePropositionTitle,
+          valuePoints: originalParsedResponse.valuePoints,
+          socialProofTitle: originalParsedResponse.socialProofTitle,
+          testimonials: originalParsedResponse.testimonials,
+          formTitle: originalParsedResponse.formTitle,
+          formSubtitle: originalParsedResponse.formSubtitle,
+          submitButton: originalParsedResponse.submitButton,
+          thankYouTitle: originalParsedResponse.thankYouTitle,
+          thankYouMessage: originalParsedResponse.thankYouMessage,
+          nextSteps: originalParsedResponse.nextSteps,
+          videoTitle: originalParsedResponse.videoTitle,
+          whatsappText: originalParsedResponse.whatsappText
         },
         htmlContent: parsedResponse.html,
         cssContent: parsedResponse.css,
