@@ -794,6 +794,11 @@ ${filledFields}
     
     const templateDir = path.join(process.cwd(), 'reference', templateName)
     
+    // Debug: Log template directory and check if files exist
+    console.log('Template directory:', templateDir)
+    console.log('Template name:', templateName)
+    console.log('Files in template directory:', fs.readdirSync(templateDir))
+    
     // Read template files
     const templateHTML = fs.readFileSync(path.join(templateDir, 'index.html'), 'utf8')
     const templateCSS = fs.readFileSync(path.join(templateDir, 'style.css'), 'utf8')
