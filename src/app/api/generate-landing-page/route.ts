@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 const prisma = new PrismaClient()
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1",
-  baseURL: process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1",
+  baseURL: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1",
 })
 
 export async function GET(request: NextRequest) {
@@ -229,9 +229,9 @@ ${filledFields}
     // Generate landing page with AI
     let aiResponse: string | null = null
     try {
-      console.log('Attempting to call AIML API with model: gpt-4o')
+      console.log('Attempting to call OpenAI API with model: gpt-4o')
       const apiKey = process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1"
-      const baseURL = process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1"
+      const baseURL = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
       console.log('API Key (first 8 chars):', apiKey.substring(0, 8) + "...")
       console.log('Base URL:', baseURL)
       console.log('Using environment variable:', !!process.env.OPENAI_API_KEY)
@@ -265,7 +265,7 @@ ${prompt}`
         statusText: (openaiError as any)?.statusText,
         response: (openaiError as any)?.response?.data,
         apiKey: process.env.OPENAI_API_KEY ? 'Using env var' : 'Using fallback key',
-        baseURL: process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1"
+        baseURL: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
       }
       
       console.error('OpenAI API error details:', errorDetails)
