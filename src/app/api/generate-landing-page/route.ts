@@ -1693,12 +1693,12 @@ body {
         }
         
         // Extract HTML content using a more robust approach
-        // Use a more flexible regex that can handle multiline content
-        const htmlMatch = cleanResponse.match(/"html"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-        const cssMatch = cleanResponse.match(/"css"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-        const jsMatch = cleanResponse.match(/"js"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-        const titleMatch = cleanResponse.match(/"title"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
-        const metaDescriptionMatch = cleanResponse.match(/"metaDescription"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+        // Use regex that can handle multiline content without /s flag
+        const htmlMatch = cleanResponse.match(/"html"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
+        const cssMatch = cleanResponse.match(/"css"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
+        const jsMatch = cleanResponse.match(/"js"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
+        const titleMatch = cleanResponse.match(/"title"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
+        const metaDescriptionMatch = cleanResponse.match(/"metaDescription"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
         
         if (htmlMatch || cssMatch || jsMatch) {
           // Reconstruct JSON with properly escaped content
