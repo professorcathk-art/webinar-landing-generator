@@ -1693,11 +1693,12 @@ body {
         }
         
         // Extract HTML content using a more robust approach
-        const htmlMatch = cleanResponse.match(/"html"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
-        const cssMatch = cleanResponse.match(/"css"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
-        const jsMatch = cleanResponse.match(/"js"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
-        const titleMatch = cleanResponse.match(/"title"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
-        const metaDescriptionMatch = cleanResponse.match(/"metaDescription"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
+        // Use a more flexible regex that can handle multiline content
+        const htmlMatch = cleanResponse.match(/"html"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+        const cssMatch = cleanResponse.match(/"css"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+        const jsMatch = cleanResponse.match(/"js"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+        const titleMatch = cleanResponse.match(/"title"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
+        const metaDescriptionMatch = cleanResponse.match(/"metaDescription"\s*:\s*"((?:[^"\\]|\\.)*)"/s)
         
         if (htmlMatch || cssMatch || jsMatch) {
           // Reconstruct JSON with properly escaped content
@@ -1754,16 +1755,38 @@ body {
         return cleanResponse
       }
       
-      const cleanResponse = extractAndReconstructJSON(aiResponse)
+      // First, try to parse the AI response directly
+      let cleanResponse = aiResponse.trim()
+      
+      // Remove any markdown code blocks
+      cleanResponse = cleanResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+      
+      // Try to find JSON object boundaries
+      const jsonStart = cleanResponse.indexOf('{')
+      const jsonEnd = cleanResponse.lastIndexOf('}') + 1
+      
+      if (jsonStart !== -1 && jsonEnd > jsonStart) {
+        cleanResponse = cleanResponse.substring(jsonStart, jsonEnd)
+      }
+      
       console.log('Cleaned AI response for JSON parsing:', cleanResponse.substring(0, 200) + '...')
       
-      // Try to parse JSON with multiple attempts
+      // Try to parse JSON directly first
       try {
         parsedResponse = JSON.parse(cleanResponse)
+        console.log('Direct JSON parsing successful')
       } catch (parseError) {
-        console.error('JSON parse failed, using fallback template:', parseError)
-        // If the new extraction method fails, we'll use the fallback template
-        throw new Error('Failed to parse AI response')
+        console.error('Direct JSON parse failed, trying extraction method:', parseError)
+        
+        // If direct parsing fails, try the extraction method
+        try {
+          const extractedJSON = extractAndReconstructJSON(aiResponse)
+          parsedResponse = JSON.parse(extractedJSON)
+          console.log('Extraction method successful')
+        } catch (extractionError) {
+          console.error('Extraction method also failed, using fallback template:', extractionError)
+          throw new Error('Failed to parse AI response')
+        }
       }
       
       // Validate that we have the required fields
