@@ -1687,16 +1687,23 @@ body {
           }
         }
         
-        // Fix common JSON issues
+        // More robust JSON fixing
         cleanResponse = cleanResponse
+          // Fix unescaped quotes in HTML content - this is the main issue
+          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
+            // If we have quotes within quotes, escape the inner ones
+            return `"${p1}\\"${p2}\\"${p3}"`
+          })
+          // Fix specific pattern like content="width=device-width", initial-scale=1.0"
+          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
           // Fix unterminated strings by adding quotes
           .replace(/"([^"]*?)(?=\s*[,}\]])/g, '"$1"')
-          // Fix unescaped quotes in strings
-          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
           // Fix trailing commas
           .replace(/,(\s*[}\]])/g, '$1')
           // Fix missing quotes around keys
           .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
+          // Fix common HTML attribute issues in JSON strings
+          .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
         
         return cleanResponse
       }
@@ -1712,6 +1719,10 @@ body {
         
         // Try to fix common JSON issues and parse again
         let fixedResponse = cleanResponse
+          // Fix the specific issue with HTML attributes in JSON strings
+          .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
+          // Fix unescaped quotes in HTML content
+          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
           // Fix unterminated strings by finding the end of the JSON object
           .replace(/"([^"]*?)(?=\s*[,}\]])/g, (match, content) => {
             // If the string is unterminated, try to find where it should end
@@ -1725,9 +1736,30 @@ body {
           .replace(/\\"/g, '\\"')
           // Remove any trailing text after the JSON object
           .replace(/}([^}]*)$/, '}')
+          // Additional fix for malformed HTML attributes
+          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
         
         console.log('Attempting to parse fixed JSON:', fixedResponse.substring(0, 200) + '...')
-        parsedResponse = JSON.parse(fixedResponse)
+        
+        try {
+          parsedResponse = JSON.parse(fixedResponse)
+        } catch (secondParseError) {
+          console.error('Second JSON parse attempt failed:', secondParseError)
+          
+          // Last resort: try to manually repair the JSON by finding and fixing the specific error
+          let repairedResponse = fixedResponse
+          
+          // Fix the specific pattern we're seeing: content="width=device-width", initial-scale=1.0"
+          repairedResponse = repairedResponse
+            .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
+            // Fix any remaining unescaped quotes in HTML attributes
+            .replace(/([a-zA-Z-]+)="([^"]*)"([^"]*)"([^"]*)"/g, '$1="\\"$2\\"$3\\"$4\\""')
+            // Fix any remaining malformed quotes
+            .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
+          
+          console.log('Attempting to parse repaired JSON:', repairedResponse.substring(0, 200) + '...')
+          parsedResponse = JSON.parse(repairedResponse)
+        }
       }
       
       // Validate that we have the required fields
