@@ -190,100 +190,210 @@ ${filledFields}
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
 - 不要生成完整的網頁，只生成文案內容`
 
-    // Generate landing page with AI
+    // Generate landing page with AI (with retry logic)
     let aiResponse: string | null = null
-    try {
-      console.log('Attempting to call AIML API with model: gpt-4o')
-      const apiKey = process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1"
-      const baseURL = process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1"
-      console.log('API Key (first 8 chars):', apiKey.substring(0, 8) + "...")
-      console.log('Base URL:', baseURL)
-      console.log('Using environment variable:', !!process.env.OPENAI_API_KEY)
-      
-      // Check if we have a valid API key
-      if (!apiKey || apiKey.length < 10) {
-        throw new Error('Invalid API key configuration')
-      }
-      
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
+    let lastError: string | null = null
+    const maxRetries = 3
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`Attempting to call AIML API with model: gpt-4o (attempt ${attempt}/${maxRetries})`)
+        const apiKey = process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1"
+        const baseURL = process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1"
+        console.log('API Key (first 8 chars):', apiKey.substring(0, 8) + "...")
+        console.log('Base URL:', baseURL)
+        console.log('Using environment variable:', !!process.env.OPENAI_API_KEY)
+        
+        // Check if we have a valid API key
+        if (!apiKey || apiKey.length < 10) {
+          throw new Error('Invalid API key configuration')
+        }
+        
+        // Build messages array
+        const messages = [
           {
-            role: "system",
-            content: `你是專業的webinar landing page生成器。創建高轉換率的繁體中文landing page，包含完整HTML、CSS、JavaScript。`
+            role: "system" as const,
+            content: '你是一個專業的webinar landing page文案專家，專精於創建高轉換率的行銷內容。'
           },
           {
-            role: "user",
-            content: `創建webinar landing page，包含：Hero區、問題痛點、解決方案、講師介紹、社會證明、FAQ、註冊表單。使用轉換心理學：稀缺性、緊急感、社會證明。
-
-技術要求：
-- 完整HTML5結構
-- 響應式CSS設計
-- JavaScript互動功能
-- 繁體中文內容
-- 高轉換率設計
-
-${prompt}
-
-請以JSON格式返回：
-{
-  "html": "完整HTML代碼",
-  "css": "CSS樣式代碼", 
-  "js": "JavaScript代碼",
-  "title": "頁面標題",
-  "metaDescription": "頁面描述"
-}`
+            role: "user" as const,
+            content: prompt
           }
         ]
-      })
 
-      aiResponse = completion.choices[0]?.message?.content
-      if (!aiResponse) {
-        throw new Error('AI generation failed - no response content')
+        // Add error feedback for retry attempts
+        if (attempt > 1 && lastError) {
+          messages.push({
+            role: "user" as const,
+            content: `之前的回應有JSON語法錯誤，請修正：\n\n錯誤詳情：${lastError}\n\n請重新生成正確的JSON格式，確保：\n1. 所有字符串都用雙引號包圍\n2. 數組和對象的語法正確\n3. 沒有多餘的逗號\n4. 所有特殊字符都正確轉義\n5. 返回完整的JSON對象，不要截斷`
+          })
+        }
+        
+        const completion = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: messages,
+          max_tokens: 4000,
+          temperature: 0.7
+        })
+
+        aiResponse = completion.choices[0]?.message?.content
+        if (!aiResponse) {
+          throw new Error('AI generation failed - no response content')
+        }
+        
+        console.log(`AI API call successful (attempt ${attempt})`)
+        
+        // Try to parse the response to validate JSON
+        try {
+          const cleanedResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+          const testParse = JSON.parse(cleanedResponse)
+          if (testParse.pageTitle && testParse.heroTitle) {
+            console.log('JSON validation successful, proceeding with template system')
+            break // Success! Exit retry loop
+          } else {
+            throw new Error('Missing required fields in JSON response')
+          }
+        } catch (parseError) {
+          lastError = parseError instanceof Error ? parseError.message : 'Unknown JSON parsing error'
+          console.log(`JSON validation failed on attempt ${attempt}:`, lastError)
+          
+          if (attempt === maxRetries) {
+            console.log('Max retries reached, will fall back to template system')
+            break
+          }
+          
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+        }
+        
+      } catch (error) {
+        console.error(`AI API call failed (attempt ${attempt}):`, error)
+        lastError = error instanceof Error ? error.message : 'Unknown API error'
+        
+        if (attempt === maxRetries) {
+          throw new Error('Failed to generate landing page content after all retries')
+        }
+        
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
       }
-      console.log('AI API call successful')
-    } catch (openaiError) {
-      const errorDetails = {
-        message: openaiError instanceof Error ? openaiError.message : 'Unknown error',
-        status: (openaiError as any)?.status,
-        statusText: (openaiError as any)?.statusText,
-        response: (openaiError as any)?.response?.data,
-        apiKey: process.env.OPENAI_API_KEY ? 'Using env var' : 'Using fallback key',
-        baseURL: process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1"
+    }
+    
+    if (!aiResponse) {
+      throw new Error('Failed to generate landing page content after all retries')
+    }
+
+    // Parse AI response and apply template
+    let parsedResponse
+    try {
+      // Clean the AI response
+      let cleanResponse = aiResponse.trim()
+      
+      // Remove markdown code blocks if present
+      if (cleanResponse.startsWith('```json')) {
+        cleanResponse = cleanResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '')
+      } else if (cleanResponse.startsWith('```')) {
+        cleanResponse = cleanResponse.replace(/```\n?/g, '').replace(/```\n?/g, '')
       }
       
-      console.error('OpenAI API error details:', errorDetails)
+      // Try to parse JSON directly
+      parsedResponse = JSON.parse(cleanResponse)
+      console.log('JSON parsing successful')
       
-      // Provide specific guidance for different error types
-      if ((openaiError as any)?.status === 401) {
-        console.error('401 Unauthorized Error - Possible causes:')
-        console.error('1. API key is invalid or expired')
-        console.error('2. API key format is incorrect')
-        console.error('3. API key is not authorized for AIML API service')
-        console.error('4. Check your AIML API account status and billing')
-      } else if ((openaiError as any)?.status === 403) {
-        console.error('403 Forbidden Error - Possible causes:')
-        console.error('1. API key has insufficient permissions')
-        console.error('2. API key has reached quota limits')
-        console.error('3. AIML API service is temporarily unavailable')
-        console.error('4. Account suspended or restricted')
+    } catch (error) {
+      console.error('Failed to parse AI response as JSON:', error)
+      console.error('Raw AI response:', aiResponse.substring(0, 500) + '...')
+      
+      // Fallback to mock data if parsing fails
+      parsedResponse = {
+        pageTitle: businessInfo || 'Webinar Landing Page',
+        brandName: businessInfo || '您的品牌',
+        heroTitle: '立即提升您的技能',
+        heroSubtitle: '專業培訓，限時免費',
+        ctaButton: '立即搶先報名',
+        valuePropositionTitle: '為什麼選擇我們？',
+        valuePoints: [
+          {
+            title: '專業師資',
+            description: '10年以上教學經驗的專業講師'
+          },
+          {
+            title: '實用內容',
+            description: '立即應用的實用技巧和方法'
+          },
+          {
+            title: '限時優惠',
+            description: '限時免費，錯過不再'
+          }
+        ],
+        socialProofTitle: '學員見證',
+        testimonials: [
+          {
+            name: '學員A',
+            title: '企業主管',
+            company: '知名企業',
+            testimonial: '學習效果顯著，推薦給大家！',
+            metric: '效率提升50%'
+          }
+        ],
+        formTitle: '立即報名',
+        formSubtitle: '填寫信息，立即開始',
+        submitButton: '立即報名',
+        thankYouTitle: '歡迎加入',
+        thankYouMessage: '感謝您的信任',
+        nextSteps: [
+          {
+            title: '查收郵件',
+            description: '確認郵件已發送'
+          },
+          {
+            title: '觀看影片',
+            description: '了解詳細內容'
+          },
+          {
+            title: '開始學習',
+            description: '立即開始您的學習之旅'
+          }
+        ],
+        videoTitle: '產品演示影片',
+        whatsappText: 'WhatsApp 諮詢'
       }
-      
-      // If API fails (quota exceeded, 403, or any other error), use mock data for testing
-      console.log('Using mock data due to API error:', openaiError instanceof Error ? openaiError.message : 'Unknown error')
-        aiResponse = JSON.stringify({
-          html: `<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${businessInfo} - 專業Webinar</title>
-    <meta name="description" content="${webinarContent}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="webinar-landing-page">
-        <!-- Hero Section -->
+    }
+
+    // Validate that we have the required fields
+    if (!parsedResponse.pageTitle || !parsedResponse.heroTitle) {
+      throw new Error('AI response missing required fields (pageTitle, heroTitle)')
+    }
+    
+    // Load template files
+    // Choose template based on visual style
+    let templateName = 'cyber-funnel-template'
+    if (visualStyle === '專業商務') {
+      templateName = 'professional-funnel-template'
+    }
+    
+    const templateDir = path.join(process.cwd(), 'reference', `${templateName}.zip`)
+    
+    // Read template files
+    const templateHTML = fs.readFileSync(path.join(templateDir, 'index.html'), 'utf8')
+    const templateCSS = fs.readFileSync(path.join(templateDir, 'style.css'), 'utf8')
+    const templateJS = fs.readFileSync(path.join(templateDir, 'app.js'), 'utf8')
+    
+    // Apply template with AI-generated content
+    const finalHTML = applyTemplate(templateHTML, parsedResponse)
+    const finalCSS = templateCSS + '\n' + generateCSS(visualStyle, brandColors)
+    const finalJS = templateJS
+    
+    // Create final response object
+    const finalResponse = {
+      html: finalHTML,
+      css: finalCSS,
+      js: finalJS,
+      title: parsedResponse.pageTitle,
+      metaDescription: parsedResponse.heroSubtitle
+    }
+    
+    parsedResponse = finalResponse
         <header class="hero-section">
             <div class="container">
                 <div class="hero-content">
