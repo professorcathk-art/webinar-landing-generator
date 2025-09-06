@@ -61,21 +61,52 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create AI prompt
+    // Filter out empty fields and create a clean data object
+    const cleanData = {
+      businessInfo: businessInfo?.trim() || '',
+      webinarContent: webinarContent?.trim() || '',
+      targetAudience: targetAudience?.trim() || '',
+      webinarInfo: webinarInfo?.trim() || '',
+      instructorCreds: instructorCreds?.trim() || '',
+      contactFields: contactFields || [],
+      visualStyle: visualStyle?.trim() || '現代簡約',
+      brandColors: brandColors?.trim() || '',
+      uniqueSellingPoints: uniqueSellingPoints?.trim() || '',
+      upsellProducts: upsellProducts?.trim() || '',
+      specialRequirements: specialRequirements?.trim() || '',
+      photos: photoUrls
+    }
+
+    // Create AI prompt with only filled fields
+    const filledFields = Object.entries(cleanData)
+      .filter(([key, value]) => {
+        if (key === 'contactFields') return Array.isArray(value) && value.length > 0
+        if (key === 'photos') return Array.isArray(value) && value.length > 0
+        return value && value.toString().trim() !== ''
+      })
+      .map(([key, value]) => {
+        const fieldNames: { [key: string]: string } = {
+          businessInfo: '業務描述',
+          webinarContent: 'Webinar內容',
+          targetAudience: '目標受眾',
+          webinarInfo: 'Webinar詳情',
+          instructorCreds: '講師資歷',
+          contactFields: '需要收集的用戶聯絡信息',
+          visualStyle: '視覺偏好',
+          brandColors: '品牌色彩',
+          uniqueSellingPoints: '獨特賣點',
+          upsellProducts: 'Upsell轉換目標',
+          specialRequirements: '特殊需求',
+          photos: '相關照片'
+        }
+        return `**${fieldNames[key]}**: ${Array.isArray(value) ? value.join(', ') : value}`
+      })
+      .join('\n')
+
     const prompt = `你是一個專業的轉換優化專家，專門創建類似ClickFunnels風格的高轉換率webinar landing page。請根據以下客戶信息，創建一個專業級別的funnel頁面：
 
 ## 客戶背景信息
-**業務描述**: ${businessInfo}
-**Webinar內容**: ${webinarContent}
-**目標受眾**: ${targetAudience}
-**Webinar詳情**: ${webinarInfo}
-**講師資歷**: ${instructorCreds}
-**需要收集的用戶聯絡信息**: ${contactFields.join(', ')}
-**視覺偏好**: ${visualStyle || '現代專業風格'}
-**獨特賣點**: ${uniqueSellingPoints || '未指定'}
-**Upsell轉換目標**: ${upsellProducts || '未指定'}
-**特殊需求**: ${specialRequirements || '無'}
-**相關照片**: ${photoUrls.length > 0 ? photoUrls.join(', ') : '無'}
+${filledFields}
 
 ## 專業Landing Page結構要求
 
@@ -153,18 +184,44 @@ export async function POST(request: NextRequest) {
 - 情感化的描述
 - 行動導向的語言
 
-請創建一個完整的、可直接使用的landing page，包含：
-1. 完整的HTML結構
-2. 現代化的CSS樣式
-3. 互動JavaScript功能
-4. 響應式設計
-5. 表單處理邏輯
+## 重要技術要求
+請創建一個完整的、可直接使用的landing page，必須包含：
+
+### HTML結構要求：
+1. 完整的HTML5文檔結構（DOCTYPE html, html, head, body）
+2. 正確的meta標籤（charset, viewport, title, description）
+3. 響應式設計的viewport設置
+4. 完整的頁面內容結構
+5. 表單元素必須包含所有指定的聯絡信息欄位
+6. 所有圖片使用提供的照片URL或適當的佔位符
+
+### CSS樣式要求：
+1. 現代化的響應式設計
+2. 根據視覺偏好選擇合適的配色方案
+3. 使用提供的品牌色彩（如果有的話）
+4. 移動端優先的響應式設計
+5. 流暢的動畫和過渡效果
+6. 專業的視覺層次和排版
+
+### JavaScript功能要求：
+1. 表單驗證和提交處理
+2. 模態框開關功能
+3. FAQ展開/收合功能
+4. 倒計時器功能
+5. 平滑滾動效果
+6. 表單提交到 /api/leads 端點
+
+### 內容要求：
+- 只使用客戶提供的具體信息，不要添加虛假或示例內容
+- 如果某個欄位為空，則不要包含相關內容
+- 確保所有文字內容都是繁體中文
+- 使用專業但親切的語調
 
 請以JSON格式返回：
 {
-  "html": "完整的HTML代碼",
-  "css": "CSS樣式代碼", 
-  "js": "JavaScript代碼",
+  "html": "完整的HTML5文檔代碼，包含DOCTYPE、head、body等完整結構",
+  "css": "完整的CSS樣式代碼，包含響應式設計和動畫效果", 
+  "js": "完整的JavaScript代碼，包含所有互動功能",
   "title": "頁面標題",
   "metaDescription": "頁面描述"
 }`
@@ -1474,8 +1531,20 @@ window.addEventListener('load', addUrgencyEffect);`,
         })
     }
 
-    // Generate CSS based on visual style preference
-    const generateCSS = (style: string) => {
+    // Generate CSS based on visual style preference and brand colors
+    const generateCSS = (style: string, brandColors?: string) => {
+      // Parse brand colors if provided
+      let primaryColor = '#667eea'
+      let secondaryColor = '#764ba2'
+      let accentColor = '#ff6b6b'
+      
+      if (brandColors && brandColors.trim()) {
+        const colors = brandColors.split(',').map(c => c.trim().replace('#', ''))
+        if (colors.length >= 1) primaryColor = '#' + colors[0]
+        if (colors.length >= 2) secondaryColor = '#' + colors[1]
+        if (colors.length >= 3) accentColor = '#' + colors[2]
+      }
+
       const baseCSS = `/* Reset and Base Styles */
 * {
     margin: 0;
@@ -1494,6 +1563,13 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
 }`
 
       let styleCSS = ''
@@ -1503,7 +1579,7 @@ body {
           styleCSS = `
 /* Modern Minimalist Style */
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     color: white;
     padding: 100px 0 80px;
     text-align: center;
@@ -1512,7 +1588,7 @@ body {
 }
 
 .cta-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     color: white;
     border: none;
     padding: 15px 30px;
@@ -1521,12 +1597,12 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px ${primaryColor}40;
 }
 
 .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 6px 20px ${primaryColor}60;
 }`
           break
           
@@ -1543,7 +1619,7 @@ body {
 }
 
 .cta-button {
-    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    background: linear-gradient(135deg, ${accentColor} 0%, #fecfef 100%);
     color: #2d3748;
     border: none;
     padding: 15px 30px;
@@ -1552,12 +1628,12 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 154, 158, 0.4);
+    box-shadow: 0 4px 15px ${accentColor}40;
 }
 
 .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 154, 158, 0.6);
+    box-shadow: 0 6px 20px ${accentColor}60;
 }`
           break
           
@@ -1574,7 +1650,7 @@ body {
 }
 
 .cta-button {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     color: white;
     border: none;
     padding: 15px 30px;
@@ -1583,12 +1659,12 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+    box-shadow: 0 4px 15px ${primaryColor}40;
 }
 
 .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+    box-shadow: 0 6px 20px ${primaryColor}60;
 }`
           break
           
@@ -1596,7 +1672,7 @@ body {
           styleCSS = `
 /* Creative Playful Style */
 .hero-section {
-    background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+    background: linear-gradient(135deg, ${accentColor} 0%, #4ecdc4 100%);
     color: white;
     padding: 100px 0 80px;
     text-align: center;
@@ -1605,7 +1681,7 @@ body {
 }
 
 .cta-button {
-    background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+    background: linear-gradient(135deg, ${accentColor} 0%, #4ecdc4 100%);
     color: white;
     border: none;
     padding: 15px 30px;
@@ -1614,12 +1690,12 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 4px 15px ${accentColor}40;
 }
 
 .cta-button:hover {
     transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+    box-shadow: 0 6px 20px ${accentColor}60;
 }`
           break
           
@@ -1627,7 +1703,7 @@ body {
           styleCSS = `
 /* Default Modern Style */
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     color: white;
     padding: 100px 0 80px;
     text-align: center;
@@ -1636,7 +1712,7 @@ body {
 }
 
 .cta-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%);
     color: white;
     border: none;
     padding: 15px 30px;
@@ -1645,12 +1721,12 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px ${primaryColor}40;
 }
 
 .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 6px 20px ${primaryColor}60;
 }`
       }
       
@@ -1663,18 +1739,91 @@ body {
       parsedResponse = JSON.parse(aiResponse)
       // Apply visual style to AI-generated CSS
       if (parsedResponse.css) {
-        parsedResponse.css = generateCSS(visualStyle) + '\n' + parsedResponse.css
+        parsedResponse.css = generateCSS(visualStyle, brandColors) + '\n' + parsedResponse.css
       } else {
-        parsedResponse.css = generateCSS(visualStyle)
+        parsedResponse.css = generateCSS(visualStyle, brandColors)
       }
     } catch (error) {
-      // If AI didn't return valid JSON, create a basic structure
+      console.error('Failed to parse AI response as JSON:', error)
+      // If AI didn't return valid JSON, create a complete HTML structure
+      const completeHTML = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${cleanData.businessInfo || 'Webinar'} - 專業Webinar</title>
+    <meta name="description" content="${cleanData.webinarContent || '專業Webinar課程'}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="webinar-landing-page">
+        <header class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 class="hero-title">${cleanData.businessInfo || '專業Webinar'}</h1>
+                    <p class="hero-subtitle">${cleanData.webinarContent || '立即註冊參加專業webinar'}</p>
+                    <div class="hero-cta">
+                        <button class="cta-button primary" onclick="openModal()">
+                            <i class="fas fa-rocket"></i>
+                            立即搶先報名
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div id="registrationModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <div class="modal-header">
+                    <h2>立即免費報名</h2>
+                </div>
+                <form class="registration-form" onsubmit="handleRegistration(event)">
+                    ${cleanData.contactFields.includes('姓名') ? '<div class="form-group"><label for="name">姓名 *</label><input type="text" id="name" name="name" required></div>' : ''}
+                    ${cleanData.contactFields.includes('Email') ? '<div class="form-group"><label for="email">Email *</label><input type="email" id="email" name="email" required></div>' : ''}
+                    ${cleanData.contactFields.includes('電話') ? '<div class="form-group"><label for="phone">電話</label><input type="tel" id="phone" name="phone"></div>' : ''}
+                    ${cleanData.contactFields.includes('Instagram帳號') ? '<div class="form-group"><label for="instagram">Instagram帳號</label><input type="text" id="instagram" name="instagram"></div>' : ''}
+                    <button type="submit" class="submit-btn">確認報名</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`
+
       parsedResponse = {
-        html: aiResponse,
-        css: generateCSS(visualStyle),
-        js: '',
-        title: 'Webinar Landing Page',
-        metaDescription: 'Generated webinar landing page'
+        html: completeHTML,
+        css: generateCSS(visualStyle, brandColors),
+        js: `function openModal() { document.getElementById('registrationModal').style.display = 'block'; }
+function closeModal() { document.getElementById('registrationModal').style.display = 'none'; }
+async function handleRegistration(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = {
+        pageId: window.location.search.split('=')[1] || '',
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        instagram: formData.get('instagram') || '',
+        additionalInfo: ''
+    };
+    try {
+        const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (response.ok) {
+            alert('感謝您的註冊！');
+            closeModal();
+            event.target.reset();
+        }
+    } catch (error) {
+        alert('提交時發生錯誤，請稍後再試。');
+    }
+}`,
+        title: `${cleanData.businessInfo || 'Webinar'} - 專業Webinar`,
+        metaDescription: cleanData.webinarContent || '專業Webinar課程'
       }
     }
 
