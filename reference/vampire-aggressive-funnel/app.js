@@ -591,21 +591,62 @@ function setSubmitButtonLoading(isLoading) {
     }
 }
 
-// Simulate form submission
+// Submit form data to leads API
 function submitFormData(formData) {
     return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            // High success rate for vampire theme
-            if (Math.random() > 0.02) {
+        // Get page ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageId = urlParams.get('id') || window.location.pathname.split('/').pop();
+        
+        if (!pageId) {
+            reject(new Error('無法識別頁面ID'));
+            return;
+        }
+        
+        // Prepare data for leads API
+        const leadData = {
+            pageId: pageId,
+            name: formData.fullName || formData.name || '',
+            email: formData.email || '',
+            phone: formData.phone || '',
+            instagram: formData.instagram || '',
+            additionalInfo: {
+                formType: 'vampire-aggressive-funnel',
+                submissionTime: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            }
+        };
+        
+        // Send to leads API
+        fetch('/api/leads', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(leadData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
                 resolve({ 
                     status: 'success', 
                     data: formData,
+                    leadId: data.data.id,
                     secretCode: 'VAMPIRE' + Math.random().toString(36).substr(2, 6).toUpperCase()
                 });
             } else {
-                reject(new Error('網路血脈中斷，請重新嘗試！'));
+                reject(new Error(data.error || '提交失敗'));
             }
-        }, 1500);
+        })
+        .catch(error => {
+            console.error('Lead submission error:', error);
+            reject(new Error('網路血脈中斷，請重新嘗試！'));
+        });
     });
 }
 

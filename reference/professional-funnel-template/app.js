@@ -147,9 +147,9 @@ function handleFormSubmission(event) {
     setFormLoadingState(true);
     isSubmitting = true;
 
-    // Simulate API call
-    setTimeout(() => {
-        try {
+    // Submit to leads API
+    submitToLeadsAPI(formData)
+        .then((result) => {
             // Show success and switch to thank you page
             showThankYouPage(formData);
             
@@ -157,14 +157,15 @@ function handleFormSubmission(event) {
             trackConversion(formData);
             
             console.log('Form submission successful');
-            
-        } catch (error) {
+        })
+        .catch((error) => {
             console.error('Form submission error:', error);
             showNotification('提交失敗，請稍後再試', 'error');
+        })
+        .finally(() => {
             setFormLoadingState(false);
             isSubmitting = false;
-        }
-    }, 2000);
+        });
 }
 
 // Collect form data
@@ -633,6 +634,54 @@ function showNotification(message, type = 'info', duration = 5000) {
     });
 
     console.log('Notification shown:', message, type);
+}
+
+// Submit form data to leads API
+async function submitToLeadsAPI(formData) {
+    // Get page ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageId = urlParams.get('id') || window.location.pathname.split('/').pop();
+    
+    if (!pageId) {
+        throw new Error('無法識別頁面ID');
+    }
+    
+    // Prepare data for leads API
+    const leadData = {
+        pageId: pageId,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        email: formData.email || '',
+        phone: formData.phone || '',
+        instagram: formData.instagram || '',
+        additionalInfo: {
+            formType: 'professional-funnel-template',
+            company: formData.company || '',
+            role: formData.role || '',
+            submissionTime: new Date().toISOString(),
+            userAgent: navigator.userAgent
+        }
+    };
+    
+    // Send to leads API
+    const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(leadData)
+    });
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+        throw new Error(result.error || '提交失敗');
+    }
+    
+    return result;
 }
 
 // Track conversion (analytics placeholder)

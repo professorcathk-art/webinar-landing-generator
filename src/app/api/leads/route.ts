@@ -16,25 +16,52 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get authenticated user from token
-    const token = request.cookies.get('auth-token')?.value
-    
-    if (!token) {
+    // Get the landing page to find the owner
+    const landingPage = await prisma.landingPage.findUnique({
+      where: { id: pageId },
+      select: { userId: true, isPublished: true }
+    })
+
+    if (!landingPage) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: 'Landing page not found' },
+        { status: 404 }
       )
     }
 
-    // Verify JWT token and get user ID
-    const { verify } = await import('jsonwebtoken')
-    const decoded = verify(token, process.env.NEXTAUTH_SECRET || 'fallback-secret') as any
-    
-    if (!decoded || !decoded.userId) {
-      return NextResponse.json(
-        { error: 'Invalid authentication' },
-        { status: 401 }
-      )
+    // For published pages, allow public submissions
+    // For draft pages, require authentication
+    let userId = landingPage.userId
+
+    if (!landingPage.isPublished) {
+      // Get authenticated user from token for draft pages
+      const token = request.cookies.get('auth-token')?.value
+      
+      if (!token) {
+        return NextResponse.json(
+          { error: 'Authentication required for draft pages' },
+          { status: 401 }
+        )
+      }
+
+      // Verify JWT token and get user ID
+      const { verify } = await import('jsonwebtoken')
+      const decoded = verify(token, process.env.NEXTAUTH_SECRET || 'fallback-secret') as any
+      
+      if (!decoded || !decoded.userId) {
+        return NextResponse.json(
+          { error: 'Invalid authentication' },
+          { status: 401 }
+        )
+      }
+
+      // Verify the user owns this page
+      if (decoded.userId !== landingPage.userId) {
+        return NextResponse.json(
+          { error: 'Unauthorized access to this page' },
+          { status: 403 }
+        )
+      }
     }
 
     // Create the lead
@@ -46,7 +73,7 @@ export async function POST(request: NextRequest) {
         phone: phone || '',
         instagram: instagram || '',
         additionalData: additionalInfo || {},
-        userId: decoded.userId
+        userId: userId
       }
     })
 

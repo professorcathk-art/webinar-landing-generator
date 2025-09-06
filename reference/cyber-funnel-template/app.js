@@ -104,22 +104,28 @@ class CyberFunnelApp {
         // Show loading state
         this.setFormLoading(true);
         
-        // Simulate processing - Fixed to show modal instead of just notification
-        setTimeout(() => {
-            this.setFormLoading(false);
-            
-            // Clear any existing success messages
-            this.clearInlineMessages();
-            
-            // Show the modal (this was the main issue)
-            this.showSuccessModal(data);
-            
-            // Reset form
-            this.form.reset();
-            
-            // Track conversion
-            this.trackConversion(data);
-        }, 2000);
+        // Submit to leads API
+        this.submitToLeadsAPI(data)
+            .then((result) => {
+                this.setFormLoading(false);
+                
+                // Clear any existing success messages
+                this.clearInlineMessages();
+                
+                // Show the modal
+                this.showSuccessModal(data);
+                
+                // Reset form
+                this.form.reset();
+                
+                // Track conversion
+                this.trackConversion(data);
+            })
+            .catch((error) => {
+                this.setFormLoading(false);
+                this.showNotification('提交失敗，請重試', 'error');
+                console.error('Form submission error:', error);
+            });
     }
     
     clearInlineMessages() {
@@ -683,6 +689,53 @@ class CyberFunnelApp {
         }, 4000);
     }
     
+    async submitToLeadsAPI(data) {
+        // Get page ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageId = urlParams.get('id') || window.location.pathname.split('/').pop();
+        
+        if (!pageId) {
+            throw new Error('無法識別頁面ID');
+        }
+        
+        // Prepare data for leads API
+        const leadData = {
+            pageId: pageId,
+            name: data.name || '',
+            email: data.email || '',
+            phone: data.phone || '',
+            instagram: data.instagram || '',
+            additionalInfo: {
+                formType: 'cyber-funnel-template',
+                company: data.company || '',
+                role: data.role || '',
+                submissionTime: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            }
+        };
+        
+        // Send to leads API
+        const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(leadData)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.error || '提交失敗');
+        }
+        
+        return result;
+    }
+
     trackConversion(data) {
         // Placeholder for analytics tracking
         console.log('Cyber Funnel Conversion:', {
