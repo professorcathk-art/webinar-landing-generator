@@ -135,6 +135,11 @@ ${filledFields}
 - 轉換心理學應用
 - 使用高轉換率的文案結構和CTA設計
 
+重要：請確保返回的JSON格式正確，HTML內容中的引號必須正確轉義。例如：
+- 使用 \" 而不是 "
+- 確保所有HTML屬性值都正確轉義
+- 避免在JSON字符串中使用未轉義的引號
+
 只使用提供的客戶信息，不要添加虛假內容。`
 
     // Generate landing page with AI
@@ -1698,20 +1703,25 @@ body {
         
         // More robust JSON fixing
         cleanResponse = cleanResponse
-          // Fix unescaped quotes in HTML content - this is the main issue
-          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
-            // If we have quotes within quotes, escape the inner ones
-            return `"${p1}\\"${p2}\\"${p3}"`
-          })
-          // Fix specific pattern like content="width=device-width", initial-scale=1.0"
+          // Fix the most common issue: unescaped quotes in HTML attributes
+          .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
+          // Fix content attribute specifically
           .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
+          // Fix any remaining unescaped quotes in HTML content
+          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
+            // Only escape if it looks like HTML attributes
+            if (p2.includes('=') || p2.includes(' ')) {
+              return `"${p1}\\"${p2}\\"${p3}"`
+            }
+            return match
+          })
           // Fix unterminated strings by adding quotes
           .replace(/"([^"]*?)(?=\s*[,}\]])/g, '"$1"')
           // Fix trailing commas
           .replace(/,(\s*[}\]])/g, '$1')
           // Fix missing quotes around keys
           .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
-          // Fix common HTML attribute issues in JSON strings
+          // Additional fix for malformed HTML in JSON strings
           .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
         
         return cleanResponse
@@ -1728,10 +1738,20 @@ body {
         
         // Try to fix common JSON issues and parse again
         let fixedResponse = cleanResponse
-          // Fix the specific issue with HTML attributes in JSON strings
+          // Fix the most critical issue: malformed HTML attributes in JSON
           .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
-          // Fix unescaped quotes in HTML content
-          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
+          // Fix content attribute specifically (most common issue)
+          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
+          // Fix viewport meta tag specifically
+          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
+          // Fix any remaining unescaped quotes in HTML content
+          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
+            // Only escape if it looks like HTML attributes
+            if (p2.includes('=') || p2.includes(' ')) {
+              return `"${p1}\\"${p2}\\"${p3}"`
+            }
+            return match
+          })
           // Fix unterminated strings by finding the end of the JSON object
           .replace(/"([^"]*?)(?=\s*[,}\]])/g, (match, content) => {
             // If the string is unterminated, try to find where it should end
@@ -1745,8 +1765,6 @@ body {
           .replace(/\\"/g, '\\"')
           // Remove any trailing text after the JSON object
           .replace(/}([^}]*)$/, '}')
-          // Additional fix for malformed HTML attributes
-          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
         
         console.log('Attempting to parse fixed JSON:', fixedResponse.substring(0, 200) + '...')
         
@@ -1760,11 +1778,23 @@ body {
           
           // Fix the specific pattern we're seeing: content="width=device-width", initial-scale=1.0"
           repairedResponse = repairedResponse
+            // Fix viewport meta tag specifically
             .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
             // Fix any remaining unescaped quotes in HTML attributes
             .replace(/([a-zA-Z-]+)="([^"]*)"([^"]*)"([^"]*)"/g, '$1="\\"$2\\"$3\\"$4\\""')
+            // Fix malformed HTML attributes in JSON strings
+            .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
             // Fix any remaining malformed quotes
-            .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
+            .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
+              // Only escape if it looks like HTML attributes
+              if (p2.includes('=') || p2.includes(' ')) {
+                return `"${p1}\\"${p2}\\"${p3}"`
+              }
+              return match
+            })
+            // Additional fix for common HTML patterns
+            .replace(/charset="([^"]*)"([^"]*)"/g, 'charset="\\"$1\\"$2\\""')
+            .replace(/lang="([^"]*)"([^"]*)"/g, 'lang="\\"$1\\"$2\\""')
           
           console.log('Attempting to parse repaired JSON:', repairedResponse.substring(0, 200) + '...')
           parsedResponse = JSON.parse(repairedResponse)
