@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       })
       .join('\n')
 
-    const prompt = `為webinar landing page生成高轉換率的文案內容：
+    const prompt = `為webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
 
 參考高轉換頁面結構：
 - Hero區使用緊急感標題和社會證明 (如：限時免費、僅剩名額)
@@ -186,7 +186,9 @@ ${filledFields}
 - 內容要具體、有說服力
 - 包含緊急感和社會證明
 - 只使用提供的客戶信息，不要添加虛假內容
-- 確保JSON格式正確`
+- 確保JSON格式正確
+- 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
+- 不要生成完整的網頁，只生成文案內容`
 
     // Generate landing page with AI
     let aiResponse: string | null = null
