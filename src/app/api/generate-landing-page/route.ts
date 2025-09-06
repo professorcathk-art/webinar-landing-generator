@@ -4,6 +4,8 @@ import { PrismaClient } from '@prisma/client'
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
 import { v4 as uuidv4 } from 'uuid'
+import fs from 'fs'
+import path from 'path'
 
 const prisma = new PrismaClient()
 const openai = new OpenAI({
@@ -103,7 +105,7 @@ export async function POST(request: NextRequest) {
       })
       .join('\n')
 
-    const prompt = `創建高轉換率webinar landing page：
+    const prompt = `為webinar landing page生成高轉換率的文案內容：
 
 參考高轉換頁面結構：
 - Hero區使用緊急感標題和社會證明 (如：限時免費、僅剩名額)
@@ -117,30 +119,74 @@ export async function POST(request: NextRequest) {
 客戶信息：
 ${filledFields}
 
-頁面結構：
-1. Hero區 - 主標題、副標題、CTA按鈕、倒計時
-2. 問題區 - 3-5個痛點問題
-3. 解決方案 - 學習成果、價值點
-4. 講師介紹 - 資歷、成就、社會證明
-5. 社會證明 - 學員見證、成功案例
-6. Webinar詳情 - 時間、內容、價值
-7. 緊急感區 - 倒計時
-8. 最終CTA - 註冊表單
+請生成以下文案內容，返回JSON格式：
+{
+  "pageTitle": "頁面標題",
+  "brandName": "品牌名稱",
+  "heroTitle": "主要標題 - 吸引目標受眾的問題或承諾",
+  "heroSubtitle": "副標題 - 詳細說明價值主張",
+  "ctaButton": "CTA按鈕文字",
+  "valuePropositionTitle": "價值主張標題",
+  "valuePoints": [
+    {
+      "title": "價值點標題1",
+      "description": "價值點描述1"
+    },
+    {
+      "title": "價值點標題2", 
+      "description": "價值點描述2"
+    },
+    {
+      "title": "價值點標題3",
+      "description": "價值點描述3"
+    }
+  ],
+  "socialProofTitle": "社會證明標題",
+  "testimonials": [
+    {
+      "name": "客戶姓名1",
+      "title": "客戶職位1",
+      "company": "公司名稱1",
+      "testimonial": "客戶見證內容1",
+      "metric": "成果指標1"
+    },
+    {
+      "name": "客戶姓名2",
+      "title": "客戶職位2", 
+      "company": "公司名稱2",
+      "testimonial": "客戶見證內容2",
+      "metric": "成果指標2"
+    }
+  ],
+  "formTitle": "表單標題",
+  "formSubtitle": "表單副標題",
+  "submitButton": "提交按鈕文字",
+  "thankYouTitle": "感謝頁面標題",
+  "thankYouMessage": "感謝頁面訊息",
+  "nextSteps": [
+    {
+      "title": "步驟1標題",
+      "description": "步驟1描述"
+    },
+    {
+      "title": "步驟2標題",
+      "description": "步驟2描述"
+    },
+    {
+      "title": "步驟3標題", 
+      "description": "步驟3描述"
+    }
+  ],
+  "videoTitle": "影片標題",
+  "whatsappText": "WhatsApp聯繫文字"
+}
 
-技術要求：
-- 完整HTML5結構
-- 響應式CSS設計
-- JavaScript互動功能
-- 繁體中文內容
-- 轉換心理學應用
-- 使用高轉換率的文案結構和CTA設計
-
-重要：請確保返回的JSON格式正確，HTML內容中的引號必須正確轉義。例如：
-- 使用 \" 而不是 "
-- 確保所有HTML屬性值都正確轉義
-- 避免在JSON字符串中使用未轉義的引號
-
-只使用提供的客戶信息，不要添加虛假內容。`
+要求：
+- 使用繁體中文
+- 內容要具體、有說服力
+- 包含緊急感和社會證明
+- 只使用提供的客戶信息，不要添加虛假內容
+- 確保JSON格式正確`
 
     // Generate landing page with AI
     let aiResponse: string | null = null
@@ -1674,6 +1720,65 @@ body {
       return baseCSS + styleCSS
     }
 
+    // Template engine function
+    const applyTemplate = (templateContent: string, contentData: any) => {
+      let result = templateContent
+      
+      // Replace simple placeholders
+      const replacements = {
+        '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
+        '品牌名稱': contentData.brandName || '您的品牌',
+        '主要標題 - 吸引目標受眾的問題或承諾': contentData.heroTitle || '立即提升您的技能',
+        '副標題 - 詳細說明價值主張': contentData.heroSubtitle || '專業培訓，限時免費',
+        'CTA按鈕文字': contentData.ctaButton || '立即搶先報名',
+        '價值主張標題': contentData.valuePropositionTitle || '為什麼選擇我們？',
+        '社會證明標題': contentData.socialProofTitle || '學員見證',
+        '表單標題': contentData.formTitle || '立即報名',
+        '表單副標題': contentData.formSubtitle || '填寫信息，立即開始',
+        '提交按鈕文字': contentData.submitButton || '立即報名',
+        '感謝頁面標題': contentData.thankYouTitle || '歡迎加入',
+        '感謝頁面訊息': contentData.thankYouMessage || '感謝您的信任',
+        '影片標題': contentData.videoTitle || '產品演示影片',
+        'WhatsApp聯繫文字': contentData.whatsappText || 'WhatsApp 諮詢'
+      }
+      
+      // Apply simple replacements
+      Object.entries(replacements).forEach(([placeholder, value]) => {
+        result = result.replace(new RegExp(placeholder, 'g'), value)
+      })
+      
+      // Replace value points
+      if (contentData.valuePoints && contentData.valuePoints.length > 0) {
+        contentData.valuePoints.forEach((point: any, index: number) => {
+          result = result.replace(`[數位優勢${index + 1}]`, point.title || `優勢${index + 1}`)
+          result = result.replace(`[創新解決方案${index + 1}]`, point.title || `解決方案${index + 1}`)
+          result = result.replace(`[未來技術${index + 1}]`, point.title || `技術${index + 1}`)
+          result = result.replace(`[優勢描述]`, point.description || `描述${index + 1}`)
+          result = result.replace(`[解決方案描述]`, point.description || `描述${index + 1}`)
+          result = result.replace(`[技術描述]`, point.description || `描述${index + 1}`)
+        })
+      }
+      
+      // Replace testimonials
+      if (contentData.testimonials && contentData.testimonials.length > 0) {
+        contentData.testimonials.forEach((testimonial: any, index: number) => {
+          result = result.replace(`[科技客戶見證${index + 1}]`, testimonial.testimonial || `見證${index + 1}`)
+          result = result.replace(`[數據成果見證${index + 1}]`, testimonial.testimonial || `見證${index + 1}`)
+          result = result.replace(`[創新成果證明]`, testimonial.testimonial || `見證${index + 1}`)
+        })
+      }
+      
+      // Replace next steps
+      if (contentData.nextSteps && contentData.nextSteps.length > 0) {
+        contentData.nextSteps.forEach((step: any, index: number) => {
+          result = result.replace(`[步驟${index + 1}標題]`, step.title || `步驟${index + 1}`)
+          result = result.replace(`[步驟${index + 1}描述]`, step.description || `描述${index + 1}`)
+        })
+      }
+      
+      return result
+    }
+
     // Parse AI response
     let parsedResponse
     try {
@@ -1889,16 +1994,40 @@ body {
       }
       
       // Validate that we have the required fields
-      if (!parsedResponse.html || !parsedResponse.css) {
-        throw new Error('AI response missing required fields (html, css)')
+      if (!parsedResponse.pageTitle || !parsedResponse.heroTitle) {
+        throw new Error('AI response missing required fields (pageTitle, heroTitle)')
       }
       
-      // Apply visual style to AI-generated CSS
-      if (parsedResponse.css) {
-        parsedResponse.css = generateCSS(visualStyle, brandColors) + '\n' + parsedResponse.css
-      } else {
-        parsedResponse.css = generateCSS(visualStyle, brandColors)
+      // Load template files
+      
+      // Choose template based on visual style
+      let templateName = 'cyber-funnel-template'
+      if (visualStyle === '專業商務') {
+        templateName = 'professional-funnel-template'
       }
+      
+      const templateDir = path.join(process.cwd(), 'reference', `${templateName}.zip`)
+      
+      // Read template files
+      const templateHTML = fs.readFileSync(path.join(templateDir, 'index.html'), 'utf8')
+      const templateCSS = fs.readFileSync(path.join(templateDir, 'style.css'), 'utf8')
+      const templateJS = fs.readFileSync(path.join(templateDir, 'app.js'), 'utf8')
+      
+      // Apply template with AI-generated content
+      const finalHTML = applyTemplate(templateHTML, parsedResponse)
+      const finalCSS = templateCSS + '\n' + generateCSS(visualStyle, brandColors)
+      const finalJS = templateJS
+      
+      // Create final response object
+      const finalResponse = {
+        html: finalHTML,
+        css: finalCSS,
+        js: finalJS,
+        title: parsedResponse.pageTitle,
+        metaDescription: parsedResponse.heroSubtitle
+      }
+      
+      parsedResponse = finalResponse
     } catch (error) {
       console.error('Failed to parse AI response as JSON:', error)
       console.error('Raw AI response:', aiResponse.substring(0, 500) + '...')
