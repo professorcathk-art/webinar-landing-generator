@@ -128,6 +128,18 @@ export async function POST(request: NextRequest) {
       })
       .join('\n')
 
+    // Choose template based on visual style (moved before prompt generation)
+    let templateName = 'cyber-funnel-template'
+    if (visualStyle === '專業商務') {
+      templateName = 'professional-funnel-template'
+    } else if (visualStyle === '溫暖生活化') {
+      templateName = 'professional-funnel-template' // Use professional for warm style
+    } else if (visualStyle === '創意活潑') {
+      templateName = 'cyber-funnel-template' // Use cyber for creative style
+    } else if (visualStyle === '其他') {
+      templateName = 'professional-funnel-template' // Default to professional
+    }
+
     // Generate template-specific AI prompt
     const generateTemplatePrompt = (templateName: string, filledFields: string) => {
       if (templateName === 'cyber-funnel-template') {
@@ -666,17 +678,6 @@ ${filledFields}
     }
     
     // Load template files
-    // Choose template based on visual style
-    let templateName = 'cyber-funnel-template'
-    if (visualStyle === '專業商務') {
-      templateName = 'professional-funnel-template'
-    } else if (visualStyle === '溫暖生活化') {
-      templateName = 'professional-funnel-template' // Use professional for warm style
-    } else if (visualStyle === '創意活潑') {
-      templateName = 'cyber-funnel-template' // Use cyber for creative style
-    } else if (visualStyle === '其他') {
-      templateName = 'professional-funnel-template' // Default to professional
-    }
     
     const templateDir = path.join(process.cwd(), 'reference', templateName)
     
