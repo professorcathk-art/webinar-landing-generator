@@ -190,6 +190,144 @@ ${filledFields}
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
 - 不要生成完整的網頁，只生成文案內容`
 
+    // Generate CSS based on visual style and brand colors
+    const generateCSS = (style: string, colors: string) => {
+      const baseCSS = `
+        :root {
+          --primary-color: #3b82f6;
+          --secondary-color: #1e40af;
+          --accent-color: #f59e0b;
+          --text-color: #1f2937;
+          --bg-color: #ffffff;
+        }
+      `
+      
+      let styleCSS = ''
+      
+      if (style === '科技未來') {
+        styleCSS = `
+          .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+          }
+          .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+          }
+          .cta-button:hover {
+            transform: translateY(-2px);
+          }
+        `
+      } else if (style === '專業商務') {
+        styleCSS = `
+          .hero-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+          }
+          .cta-button {
+            background: #3498db;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+          }
+          .cta-button:hover {
+            background: #2980b9;
+          }
+        `
+      } else if (style === '創意活潑') {
+        styleCSS = `
+          .hero-section {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+          }
+          .cta-button {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            border: none;
+            color: #333;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+          }
+          .cta-button:hover {
+            transform: scale(1.05);
+          }
+        `
+      }
+      
+      return baseCSS + styleCSS
+    }
+
+    // Template engine function
+    const applyTemplate = (templateContent: string, contentData: any) => {
+      let result = templateContent
+      
+      // Replace simple placeholders
+      const replacements = {
+        '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
+        '品牌名稱': contentData.brandName || '您的品牌',
+        '主要標題 - 吸引目標受眾的問題或承諾': contentData.heroTitle || '立即提升您的技能',
+        '副標題 - 詳細說明價值主張': contentData.heroSubtitle || '專業培訓，限時免費',
+        'CTA按鈕文字': contentData.ctaButton || '立即搶先報名',
+        '價值主張標題': contentData.valuePropositionTitle || '為什麼選擇我們？',
+        '社會證明標題': contentData.socialProofTitle || '學員見證',
+        '表單標題': contentData.formTitle || '立即報名',
+        '表單副標題': contentData.formSubtitle || '填寫信息，立即開始',
+        '提交按鈕文字': contentData.submitButton || '立即報名',
+        '感謝頁面標題': contentData.thankYouTitle || '歡迎加入',
+        '感謝頁面訊息': contentData.thankYouMessage || '感謝您的信任',
+        '影片標題': contentData.videoTitle || '產品演示影片',
+        'WhatsApp聯繫文字': contentData.whatsappText || 'WhatsApp 諮詢'
+      }
+      
+      // Apply simple replacements
+      Object.entries(replacements).forEach(([placeholder, value]) => {
+        result = result.replace(new RegExp(placeholder, 'g'), value)
+      })
+      
+      // Replace value points
+      if (contentData.valuePoints && contentData.valuePoints.length > 0) {
+        contentData.valuePoints.forEach((point: any, index: number) => {
+          result = result.replace(`[數位優勢${index + 1}]`, point.title || `優勢${index + 1}`)
+          result = result.replace(`[創新解決方案${index + 1}]`, point.title || `解決方案${index + 1}`)
+          result = result.replace(`[未來技術${index + 1}]`, point.title || `技術${index + 1}`)
+          result = result.replace(`[優勢描述]`, point.description || `描述${index + 1}`)
+          result = result.replace(`[解決方案描述]`, point.description || `描述${index + 1}`)
+          result = result.replace(`[技術描述]`, point.description || `描述${index + 1}`)
+        })
+      }
+      
+      // Replace testimonials
+      if (contentData.testimonials && contentData.testimonials.length > 0) {
+        contentData.testimonials.forEach((testimonial: any, index: number) => {
+          result = result.replace(`[科技客戶見證${index + 1}]`, testimonial.testimonial || `見證${index + 1}`)
+          result = result.replace(`[數據成果見證${index + 1}]`, testimonial.testimonial || `見證${index + 1}`)
+          result = result.replace(`[創新成果證明]`, testimonial.testimonial || `見證${index + 1}`)
+        })
+      }
+      
+      // Replace next steps
+      if (contentData.nextSteps && contentData.nextSteps.length > 0) {
+        contentData.nextSteps.forEach((step: any, index: number) => {
+          result = result.replace(`[步驟${index + 1}標題]`, step.title || `步驟${index + 1}`)
+          result = result.replace(`[步驟${index + 1}描述]`, step.description || `描述${index + 1}`)
+        })
+      }
+      
+      return result
+    }
+
     // Generate landing page with AI (with retry logic)
     let aiResponse: string | null = null
     let lastError: string | null = null
