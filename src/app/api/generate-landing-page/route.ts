@@ -797,12 +797,26 @@ ${filledFields}
     // Debug: Log template directory and check if files exist
     console.log('Template directory:', templateDir)
     console.log('Template name:', templateName)
+    
+    // Check if template directory exists
+    if (!fs.existsSync(templateDir)) {
+      console.error('Template directory does not exist:', templateDir)
+      throw new Error(`Template directory not found: ${templateDir}`)
+    }
+    
     console.log('Files in template directory:', fs.readdirSync(templateDir))
     
-    // Read template files
-    const templateHTML = fs.readFileSync(path.join(templateDir, 'index.html'), 'utf8')
-    const templateCSS = fs.readFileSync(path.join(templateDir, 'style.css'), 'utf8')
-    const templateJS = fs.readFileSync(path.join(templateDir, 'app.js'), 'utf8')
+    // Read template files with error handling
+    let templateHTML, templateCSS, templateJS
+    
+    try {
+      templateHTML = fs.readFileSync(path.join(templateDir, 'index.html'), 'utf8')
+      templateCSS = fs.readFileSync(path.join(templateDir, 'style.css'), 'utf8')
+      templateJS = fs.readFileSync(path.join(templateDir, 'app.js'), 'utf8')
+    } catch (error) {
+      console.error('Error reading template files:', error)
+      throw new Error(`Failed to read template files for ${templateName}: ${error.message}`)
+    }
     
     // Apply template with AI-generated content
     const finalHTML = applyTemplate(templateHTML, parsedResponse, cleanData.contactFields, templateName)
