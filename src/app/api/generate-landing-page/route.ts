@@ -231,7 +231,8 @@ ${filledFields}
 - 只使用提供的客戶信息，不要添加虛假內容
 - 確保JSON格式正確
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
-- 不要生成完整的網頁，只生成文案內容`
+- 不要生成完整的網頁，只生成文案內容
+- 如果客戶提供了Upsell轉換目標，在感謝頁面訊息中提及相關產品或服務`
       } else if (templateName === 'vampire-aggressive-funnel') {
         // Vampire template prompt
         return `為吸血鬼風格webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
@@ -291,7 +292,8 @@ ${filledFields}
 - 只使用提供的客戶信息，不要添加虛假內容
 - 確保JSON格式正確
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
-- 不要生成完整的網頁，只生成文案內容`
+- 不要生成完整的網頁，只生成文案內容
+- 如果客戶提供了Upsell轉換目標，在感謝頁面訊息中提及相關產品或服務`
       } else {
         // Professional template prompt
         return `為專業商務webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
@@ -333,7 +335,8 @@ ${filledFields}
 - 只使用提供的客戶信息，不要添加虛假內容
 - 確保JSON格式正確
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
-- 不要生成完整的網頁，只生成文案內容`
+- 不要生成完整的網頁，只生成文案內容
+- 如果客戶提供了Upsell轉換目標，在感謝頁面訊息中提及相關產品或服務`
       }
     }
 
@@ -446,7 +449,9 @@ ${filledFields}
           '利用先進AI技術，實現智能化自動處理，提升效率300%': contentData.valuePoint1Description || '利用先進AI技術，實現智能化自動處理，提升效率300%',
           '突破性架構設計，實現毫秒級響應，零延遲體驗': contentData.valuePoint2Description || '突破性架構設計，實現毫秒級響應，零延遲體驗',
           '融合區塊鏈與量子計算，構建下一代數位生態系統': contentData.valuePoint3Description || '融合區塊鏈與量子計算，構建下一代數位生態系統',
-          '全球企業信任之選': contentData.socialProofTitle || '全球企業信任之選'
+          '全球企業信任之選': contentData.socialProofTitle || '全球企業信任之選',
+          '[感謝頁面標題]': contentData.thankYouTitle || '感謝您的興趣',
+          '[感謝頁面訊息]': contentData.thankYouMessage || '我們將盡快與您聯繫，分享更多科技資訊'
         }
       } else if (templateName === 'vampire-aggressive-funnel') {
         // Vampire template replacements
@@ -464,7 +469,9 @@ ${filledFields}
           '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！': contentData.testimonial2 || '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！',
           '立即搶奪財富密碼': contentData.ctaButton || '立即搶奪財富密碼',
           '價值$50,000，現在免費': contentData.formSubtitle || '價值$50,000，現在免費',
-          '搶奪財富密碼': contentData.formTitle || '搶奪財富密碼'
+          '搶奪財富密碼': contentData.formTitle || '搶奪財富密碼',
+          '[感謝標題]': contentData.thankYouTitle || '恭喜！你已獲得財富密碼',
+          '[感謝訊息和下一步指引]': contentData.thankYouMessage || '機密資料已發送到你的郵箱，立即查收開始你的財富之路'
         }
       } else {
         // Professional template replacements
@@ -482,8 +489,8 @@ ${filledFields}
           '[表單標題 - 呼籲行動]': contentData.formTitle || '立即報名',
           '[表單副標題 - 說明將獲得什麼]': contentData.formSubtitle || '填寫信息，立即開始',
           '[立即獲取]': contentData.ctaButton || '立即搶先報名',
-          '[感謝標題]': contentData.thankYouTitle || '歡迎加入',
-          '[感謝訊息和下一步指引]': contentData.thankYouMessage || '感謝您的信任'
+          '[感謝標題]': contentData.thankYouTitle || '感謝您的興趣',
+          '[感謝訊息和下一步指引]': contentData.thankYouMessage || '我們將盡快與您聯繫，提供更多專業資訊'
         }
       }
       
@@ -558,6 +565,32 @@ ${filledFields}
         }
         if (!contactFields.includes('職位')) {
           result = result.replace(/<div class="form-group">[\s\S]*?<span class="label-prompt">\[SELECT_ROLE\]\$<\/span>[\s\S]*?<\/div>/g, '')
+        }
+      }
+      
+      // General form field handling for all templates
+      if (contactFields && contactFields.length > 0) {
+        // Hide phone field if not selected (for all templates)
+        if (!contactFields.includes('電話') && !contactFields.includes('電話號碼')) {
+          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="phone"[^>]*>[\s\S]*?<\/div>/g, '')
+          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*type="tel"[^>]*>[\s\S]*?<\/div>/g, '')
+        }
+        
+        // Hide Instagram field if not selected (for all templates)
+        if (!contactFields.includes('Instagram帳號') && !contactFields.includes('Instagram')) {
+          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="instagram"[^>]*>[\s\S]*?<\/div>/g, '')
+        }
+        
+        // Hide company field if not selected (for all templates)
+        if (!contactFields.includes('公司名稱') && !contactFields.includes('公司')) {
+          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="company"[^>]*>[\s\S]*?<\/div>/g, '')
+          result = result.replace(/<div class="form-group">[\s\S]*?<select[^>]*name="company"[^>]*>[\s\S]*?<\/div>/g, '')
+        }
+        
+        // Hide role field if not selected (for all templates)
+        if (!contactFields.includes('職位') && !contactFields.includes('職務')) {
+          result = result.replace(/<div class="form-group">[\s\S]*?<select[^>]*name="role"[^>]*>[\s\S]*?<\/div>/g, '')
+          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="role"[^>]*>[\s\S]*?<\/div>/g, '')
         }
       }
       
