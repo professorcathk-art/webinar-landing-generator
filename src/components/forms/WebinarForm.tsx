@@ -25,7 +25,7 @@ interface FormData {
 }
 
 const contactFieldOptions = ['姓名', 'Instagram帳號', '電話', 'Email']
-const visualStyleOptions = ['現代簡約', '溫暖生活化', '專業商務', '創意活潑', '其他']
+const visualStyleOptions = ['科技感', '溫暖生活化', '專業商務', '創意活潑', '其他']
 
 // Color Palette Preview Component
 function ColorPalettePreview({ colors }: { colors?: string }) {

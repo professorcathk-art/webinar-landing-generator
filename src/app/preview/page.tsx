@@ -26,6 +26,23 @@ function PreviewContent() {
     }
   }, [pageId])
 
+  // Execute JavaScript after HTML content is loaded
+  useEffect(() => {
+    if (previewData?.jsContent) {
+      // Create a script element and execute the JavaScript
+      const script = document.createElement('script')
+      script.textContent = previewData.jsContent
+      document.head.appendChild(script)
+      
+      // Clean up
+      return () => {
+        if (script.parentNode) {
+          script.parentNode.removeChild(script)
+        }
+      }
+    }
+  }, [previewData?.jsContent])
+
   // Add global form handler for published pages
   useEffect(() => {
     if (previewData?.isPublished) {
@@ -202,7 +219,6 @@ function PreviewContent() {
         />
         
         <style dangerouslySetInnerHTML={{ __html: previewData.cssContent }} />
-        <script dangerouslySetInnerHTML={{ __html: previewData.jsContent }} />
       </div>
     </div>
   )

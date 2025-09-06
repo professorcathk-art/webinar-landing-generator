@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       webinarInfo: webinarInfo?.trim() || '',
       instructorCreds: instructorCreds?.trim() || '',
       contactFields: contactFields || [],
-      visualStyle: visualStyle?.trim() || '現代簡約',
+      visualStyle: visualStyle?.trim() || '科技感',
       brandColors: brandColors?.trim() || '',
       uniqueSellingPoints: uniqueSellingPoints?.trim() || '',
       upsellProducts: upsellProducts?.trim() || '',
@@ -128,16 +128,18 @@ export async function POST(request: NextRequest) {
       })
       .join('\n')
 
-    const prompt = `為webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
+    // Generate template-specific AI prompt
+    const generateTemplatePrompt = (templateName: string, filledFields: string) => {
+      if (templateName === 'cyber-funnel-template') {
+        return `為科技感webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
 
 參考高轉換頁面結構：
-- Hero區使用緊急感標題和社會證明 (如：限時免費、僅剩名額)
-- 問題區突出痛點，解決方案區展示具體價值和成果
-- 講師介紹包含具體成就、數字和社會證明
-- 使用倒計時和限時優惠增加緊急感
-- CTA按鈕使用行動導向文字 (如：立即搶先報名、免費獲得)
-- 階梯式價值展示：問題 → 解決方案 → 講師 → 社會證明 → CTA
-- 信任元素：具體數字、學員見證、專業資歷
+- Hero區使用科技感標題和未來感元素 (如：NEXT-GEN TECHNOLOGY、量子計算)
+- 問題區突出數位轉型痛點，解決方案區展示AI技術和創新成果
+- 講師介紹包含科技成就、數據成果和技術突破
+- 使用科技感CTA按鈕 (如：立即獲取、啟動系統、接入平台)
+- 階梯式價值展示：數位優勢 → 創新解決方案 → 未來技術 → 社會證明 → CTA
+- 信任元素：具體數據、科技客戶見證、技術資歷
 
 客戶信息：
 ${filledFields}
@@ -148,6 +150,7 @@ ${filledFields}
   "brandName": "品牌名稱",
   "heroTitle": "主要標題 - 吸引目標受眾的問題或承諾",
   "heroSubtitle": "副標題 - 詳細說明價值主張",
+  "badgeText": "科技標籤文字",
   "ctaButton": "CTA按鈕文字",
   "valuePropositionTitle": "價值主張標題",
   "valuePoints": [
@@ -156,7 +159,7 @@ ${filledFields}
       "description": "價值點描述1"
     },
     {
-      "title": "價值點標題2", 
+      "title": "價值點標題2",
       "description": "價值點描述2"
     },
     {
@@ -164,6 +167,9 @@ ${filledFields}
       "description": "價值點描述3"
     }
   ],
+  "valuePoint1Description": "第一個價值點的詳細描述",
+  "valuePoint2Description": "第二個價值點的詳細描述",
+  "valuePoint3Description": "第三個價值點的詳細描述",
   "socialProofTitle": "社會證明標題",
   "testimonials": [
     {
@@ -175,7 +181,7 @@ ${filledFields}
     },
     {
       "name": "客戶姓名2",
-      "title": "客戶職位2", 
+      "title": "客戶職位2",
       "company": "公司名稱2",
       "testimonial": "客戶見證內容2",
       "metric": "成果指標2"
@@ -196,7 +202,7 @@ ${filledFields}
       "description": "步驟2描述"
     },
     {
-      "title": "步驟3標題", 
+      "title": "步驟3標題",
       "description": "步驟3描述"
     }
   ],
@@ -206,12 +212,58 @@ ${filledFields}
 
 要求：
 - 使用繁體中文
-- 內容要具體、有說服力
+- 內容要具體、有說服力，具有科技感和未來感
 - 包含緊急感和社會證明
 - 只使用提供的客戶信息，不要添加虛假內容
 - 確保JSON格式正確
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
 - 不要生成完整的網頁，只生成文案內容`
+      } else {
+        // Professional template prompt
+        return `為專業商務webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
+
+參考高轉換頁面結構：
+- Hero區使用專業商務標題和信任元素 (如：專業認證、企業級解決方案)
+- 問題區突出商業痛點，解決方案區展示具體商業價值和ROI
+- 講師介紹包含商業成就、企業經驗和專業認證
+- 使用專業CTA按鈕 (如：立即獲取、免費諮詢、開始合作)
+- 階梯式價值展示：價值點 → 解決痛點 → 獨特優勢 → 社會證明 → CTA
+- 信任元素：具體數字、企業客戶見證、專業資歷
+
+客戶信息：
+${filledFields}
+
+請生成以下文案內容，返回JSON格式：
+{
+  "pageTitle": "頁面標題",
+  "brandName": "品牌名稱",
+  "heroTitle": "主要標題 - 吸引目標受眾的問題或承諾",
+  "heroSubtitle": "副標題 - 詳細說明價值主張",
+  "valuePoint1": "價值點1 - 具體益處",
+  "valuePoint2": "價值點2 - 解決痛點",
+  "valuePoint3": "價值點3 - 獨特優勢",
+  "testimonial1": "客戶見證1",
+  "testimonial2": "客戶見證2",
+  "dataProof": "數據證明",
+  "formTitle": "表單標題 - 呼籲行動",
+  "formSubtitle": "表單副標題 - 說明將獲得什麼",
+  "ctaButton": "CTA按鈕文字",
+  "thankYouTitle": "感謝標題",
+  "thankYouMessage": "感謝訊息和下一步指引"
+}
+
+要求：
+- 使用繁體中文
+- 內容要具體、有說服力，具有專業商務感
+- 包含緊急感和社會證明
+- 只使用提供的客戶信息，不要添加虛假內容
+- 確保JSON格式正確
+- 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
+- 不要生成完整的網頁，只生成文案內容`
+      }
+    }
+
+    const prompt = generateTemplatePrompt(templateName, filledFields)
 
     // Generate CSS based on visual style and brand colors
     const generateCSS = (style: string, colors: string) => {
@@ -293,30 +345,129 @@ ${filledFields}
     }
 
     // Template engine function
-    const applyTemplate = (templateContent: string, contentData: any) => {
+    const applyTemplate = (templateContent: string, contentData: any, contactFields: string[] = [], templateName: string) => {
       let result = templateContent
       
-      // Replace simple placeholders - match actual template placeholders
-      const replacements = {
-        '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
-        '[您的科技品牌]': contentData.brandName || '您的品牌',
-        '[主要標題 - 科技創新解決方案]': contentData.heroTitle || '立即提升您的技能',
-        '[副標題 - 數位轉型價值主張]': contentData.heroSubtitle || '專業培訓，限時免費',
-        '[立即獲取]': contentData.ctaButton || '立即搶先報名',
-        '[獲取數位解決方案]': contentData.formTitle || '立即報名',
-        '[立即獲得先進技術資源]': contentData.formSubtitle || '填寫信息，立即開始',
-        '[歡迎加入科技未來]': contentData.thankYouTitle || '歡迎加入',
-        '[感謝您的信任，準備迎接數位革命]': contentData.thankYouMessage || '感謝您的信任',
-        '[INPUT_NAME]': '姓名',
-        '[INPUT_EMAIL]': 'Email',
-        '[INPUT_COMPANY]': '公司名稱',
-        '[SELECT_ROLE]': '職位'
+      // Template-specific replacements
+      let replacements: { [key: string]: string } = {}
+      
+      if (templateName === 'cyber-funnel-template') {
+        // Cyber template replacements
+        replacements = {
+          '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
+          '[您的科技品牌]': contentData.brandName || '您的品牌',
+          '[主要標題 - 科技創新解決方案]': contentData.heroTitle || '立即提升您的技能',
+          '[副標題 - 數位轉型價值主張]': contentData.heroSubtitle || '專業培訓，限時免費',
+          '[立即獲取]': contentData.ctaButton || '立即搶先報名',
+          '[獲取數位解決方案]': contentData.formTitle || '立即報名',
+          '[立即獲得先進技術資源]': contentData.formSubtitle || '填寫信息，立即開始',
+          '[歡迎加入科技未來]': contentData.thankYouTitle || '歡迎加入',
+          '[感謝您的信任，準備迎接數位革命]': contentData.thankYouMessage || '感謝您的信任',
+          '[INPUT_NAME]': '姓名',
+          '[INPUT_EMAIL]': 'Email',
+          '[INPUT_COMPANY]': '公司名稱',
+          '[SELECT_ROLE]': '職位',
+          'NEXT-GEN TECHNOLOGY': contentData.badgeText || 'NEXT-GEN TECHNOLOGY',
+          '為什麼選擇我們的科技解決方案？': contentData.valuePropositionTitle || '為什麼選擇我們的科技解決方案？',
+          '利用先進AI技術，實現智能化自動處理，提升效率300%': contentData.valuePoint1Description || '利用先進AI技術，實現智能化自動處理，提升效率300%',
+          '突破性架構設計，實現毫秒級響應，零延遲體驗': contentData.valuePoint2Description || '突破性架構設計，實現毫秒級響應，零延遲體驗',
+          '融合區塊鏈與量子計算，構建下一代數位生態系統': contentData.valuePoint3Description || '融合區塊鏈與量子計算，構建下一代數位生態系統',
+          '全球企業信任之選': contentData.socialProofTitle || '全球企業信任之選'
+        }
+      } else {
+        // Professional template replacements
+        replacements = {
+          '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
+          '[您的品牌名稱]': contentData.brandName || '您的品牌',
+          '[主要標題 - 吸引目標受眾的問題或承諾]': contentData.heroTitle || '立即提升您的技能',
+          '[副標題 - 詳細說明價值主張]': contentData.heroSubtitle || '專業培訓，限時免費',
+          '[價值點1 - 具體益處]': contentData.valuePoint1 || '具體益處',
+          '[價值點2 - 解決痛點]': contentData.valuePoint2 || '解決痛點',
+          '[價值點3 - 獨特優勢]': contentData.valuePoint3 || '獨特優勢',
+          '[客戶見證1]': contentData.testimonial1 || '客戶見證1',
+          '[客戶見證2]': contentData.testimonial2 || '客戶見證2',
+          '[數據證明]': contentData.dataProof || '數據證明',
+          '[表單標題 - 呼籲行動]': contentData.formTitle || '立即報名',
+          '[表單副標題 - 說明將獲得什麼]': contentData.formSubtitle || '填寫信息，立即開始',
+          '[立即獲取]': contentData.ctaButton || '立即搶先報名',
+          '[感謝標題]': contentData.thankYouTitle || '歡迎加入',
+          '[感謝訊息和下一步指引]': contentData.thankYouMessage || '感謝您的信任'
+        }
       }
       
       // Apply simple replacements
       Object.entries(replacements).forEach(([placeholder, value]) => {
         result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value)
       })
+      
+      // Handle dynamic form fields based on user selection
+      if (contactFields && contactFields.length > 0) {
+        // Hide all form fields first
+        result = result.replace(/<div class="form-group">[\s\S]*?<\/div>/g, (match) => {
+          // Check if this form group contains a field that should be shown
+          const shouldShow = contactFields.some(field => {
+            if (field === '姓名' && match.includes('name')) return true
+            if (field === 'Email' && match.includes('email')) return true
+            if (field === '電話' && match.includes('phone')) return true
+            if (field === 'Instagram帳號' && match.includes('instagram')) return true
+            return false
+          })
+          
+          // Always show name and email as they are required
+          if (match.includes('name') || match.includes('email')) {
+            return match
+          }
+          
+          // Show other fields only if selected
+          return shouldShow ? match : ''
+        })
+        
+        // Add phone field if selected
+        if (contactFields.includes('電話')) {
+          const phoneField = `
+                        <div class="form-group">
+                            <label class="form-label" for="phone">
+                                <span class="label-prompt">[INPUT_PHONE]$</span>
+                                <span class="label-text">電話號碼</span>
+                            </label>
+                            <input type="tel" id="phone" name="phone" class="form-control cyber-input" placeholder="請輸入電話號碼">
+                            <div class="input-scan"></div>
+                        </div>`
+          
+          // Insert phone field before company field
+          result = result.replace(
+            /<div class="form-group">[\s\S]*?<span class="label-prompt">\[INPUT_COMPANY\]\$<\/span>/,
+            phoneField + '\n                        <div class="form-group">\n                            <label class="form-label" for="company">\n                                <span class="label-prompt">[INPUT_COMPANY]$</span>'
+          )
+        }
+        
+        // Add Instagram field if selected
+        if (contactFields.includes('Instagram帳號')) {
+          const instagramField = `
+                        <div class="form-group">
+                            <label class="form-label" for="instagram">
+                                <span class="label-prompt">[INPUT_INSTAGRAM]$</span>
+                                <span class="label-text">Instagram帳號</span>
+                            </label>
+                            <input type="text" id="instagram" name="instagram" class="form-control cyber-input" placeholder="請輸入Instagram帳號">
+                            <div class="input-scan"></div>
+                        </div>`
+          
+          // Insert Instagram field before company field
+          result = result.replace(
+            /<div class="form-group">[\s\S]*?<span class="label-prompt">\[INPUT_COMPANY\]\$<\/span>/,
+            instagramField + '\n                        <div class="form-group">\n                            <label class="form-label" for="company">\n                                <span class="label-prompt">[INPUT_COMPANY]$</span>'
+          )
+        }
+        
+        // Hide company and role fields if not selected
+        if (!contactFields.includes('公司名稱')) {
+          result = result.replace(/<div class="form-group">[\s\S]*?<span class="label-prompt">\[INPUT_COMPANY\]\$<\/span>[\s\S]*?<\/div>/g, '')
+        }
+        if (!contactFields.includes('職位')) {
+          result = result.replace(/<div class="form-group">[\s\S]*?<span class="label-prompt">\[SELECT_ROLE\]\$<\/span>[\s\S]*?<\/div>/g, '')
+        }
+      }
       
       // Replace value points
       if (contentData.valuePoints && contentData.valuePoints.length > 0) {
@@ -519,6 +670,12 @@ ${filledFields}
     let templateName = 'cyber-funnel-template'
     if (visualStyle === '專業商務') {
       templateName = 'professional-funnel-template'
+    } else if (visualStyle === '溫暖生活化') {
+      templateName = 'professional-funnel-template' // Use professional for warm style
+    } else if (visualStyle === '創意活潑') {
+      templateName = 'cyber-funnel-template' // Use cyber for creative style
+    } else if (visualStyle === '其他') {
+      templateName = 'professional-funnel-template' // Default to professional
     }
     
     const templateDir = path.join(process.cwd(), 'reference', templateName)
@@ -529,7 +686,7 @@ ${filledFields}
     const templateJS = fs.readFileSync(path.join(templateDir, 'app.js'), 'utf8')
     
     // Apply template with AI-generated content
-    const finalHTML = applyTemplate(templateHTML, parsedResponse)
+    const finalHTML = applyTemplate(templateHTML, parsedResponse, cleanData.contactFields, templateName)
     const finalCSS = templateCSS + '\n' + generateCSS(visualStyle, brandColors)
     const finalJS = templateJS
     
