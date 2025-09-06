@@ -1745,47 +1745,8 @@ body {
       console.error('Failed to parse AI response as JSON:', error)
       console.error('Raw AI response:', aiResponse.substring(0, 500) + '...')
       
-      // Check if AI refused the request
-      if (aiResponse && (aiResponse.includes("I'm sorry") || aiResponse.includes("can't assist") || aiResponse.includes("refuse"))) {
-        console.log('AI refused the request, using fallback template')
-        // Use the comprehensive fallback template
-      parsedResponse = {
-          html: completeHTML,
-          css: generateCSS(visualStyle, brandColors),
-          js: `function openModal() { document.getElementById('registrationModal').style.display = 'block'; }
-function closeModal() { document.getElementById('registrationModal').style.display = 'none'; }
-async function handleRegistration(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const data = {
-        pageId: window.location.search.split('=')[1] || '',
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        instagram: formData.get('instagram') || '',
-        additionalInfo: ''
-    };
-    try {
-        const response = await fetch('/api/leads', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        if (response.ok) {
-            alert('感謝您的註冊！');
-            closeModal();
-            event.target.reset();
-        }
-    } catch (error) {
-        alert('提交時發生錯誤，請稍後再試。');
-    }
-}`,
-          title: `${cleanData.businessInfo || 'Webinar'} - 專業Webinar`,
-          metaDescription: cleanData.webinarContent || '專業Webinar課程'
-        }
-      } else {
-        // If AI didn't return valid JSON, create a comprehensive HTML structure
-        const completeHTML = `<!DOCTYPE html>
+      // Define the complete HTML template for fallback cases
+      const completeHTML = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -1837,27 +1798,18 @@ async function handleRegistration(event) {
         <section class="problem-section">
             <div class="container">
                 <h2>您是否遇到這些問題？</h2>
-                <div class="problems-grid">
-                    <div class="problem-card">
-                        <div class="problem-icon">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                        <h3>缺乏系統性學習</h3>
-                        <p>不知道從哪裡開始，學習路徑混亂</p>
+                <div class="problem-grid">
+                    <div class="problem-item">
+                        <i class="fas fa-times-circle"></i>
+                        <p>缺乏專業技能，無法提升競爭力</p>
                     </div>
-                    <div class="problem-card">
-                        <div class="problem-icon">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                        <h3>實戰經驗不足</h3>
-                        <p>理論知識豐富，但實際應用困難</p>
+                    <div class="problem-item">
+                        <i class="fas fa-times-circle"></i>
+                        <p>學習資源分散，找不到系統性方法</p>
                     </div>
-                    <div class="problem-card">
-                        <div class="problem-icon">
-                            <i class="fas fa-times-circle"></i>
-                        </div>
-                        <h3>時間成本太高</h3>
-                        <p>自學需要大量時間，效率低下</p>
+                    <div class="problem-item">
+                        <i class="fas fa-times-circle"></i>
+                        <p>時間有限，需要高效學習方案</p>
                     </div>
                 </div>
             </div>
@@ -1866,167 +1818,142 @@ async function handleRegistration(event) {
         <!-- Solution Section -->
         <section class="solution-section">
             <div class="container">
-                <h2>我們為您提供完整解決方案</h2>
+                <h2>我們的解決方案</h2>
                 <div class="solution-content">
-                    <div class="solution-left">
-                        <h3>您將學到什麼？</h3>
-                        <ul class="learning-points">
-                            <li><i class="fas fa-star"></i> ${cleanData.businessInfo || '專業技能'}的核心原理</li>
-                            <li><i class="fas fa-star"></i> 實戰技巧和最佳實踐</li>
-                            <li><i class="fas fa-star"></i> 常見問題解決方案</li>
-                            <li><i class="fas fa-star"></i> 進階應用技巧</li>
+                    <div class="solution-text">
+                        <h3>專業${cleanData.businessInfo || '技能'}培訓</h3>
+                        <p>${cleanData.webinarContent || '通過系統性的培訓課程，幫助您快速掌握核心技能，提升專業競爭力。'}</p>
+                        <ul class="solution-benefits">
+                            <li><i class="fas fa-check"></i> 實戰導向的課程設計</li>
+                            <li><i class="fas fa-check"></i> 專業講師親自指導</li>
+                            <li><i class="fas fa-check"></i> 終身學習資源支持</li>
+                            <li><i class="fas fa-check"></i> 社群交流與互助</li>
                         </ul>
                     </div>
-                    <div class="solution-right">
-                        <div class="value-box">
-                            <div class="value-amount">價值 $997</div>
-                            <div class="current-price">今日免費</div>
-                            <div class="savings">節省 100%</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2>課程特色</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-graduation-cap"></i>
                         </div>
+                        <h3>專業教學</h3>
+                        <p>由業界專家親自授課，確保學習品質</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>小班制教學</h3>
+                        <p>小班制確保每位學員都能獲得充分關注</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <h3>結業證書</h3>
+                        <p>完成課程後獲得專業認證證書</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Instructor Section -->
-        <section class="instructor-section">
+        <!-- CTA Section -->
+        <section class="cta-section">
             <div class="container">
-                <h2>專業講師介紹</h2>
-                <div class="instructor-card">
-                    <div class="instructor-avatar">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <div class="instructor-info">
-                        <h3>資深${cleanData.businessInfo || '專業'}專家</h3>
-                        <p class="instructor-credentials">${cleanData.instructorCreds || '擁有豐富的實戰經驗和專業知識'}</p>
-                        <div class="instructor-stats">
-                            <div class="stat-item">
-                                <span class="stat-number">1000+</span>
-                                <span class="stat-label">學員</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">5+</span>
-                                <span class="stat-label">年經驗</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-number">98%</span>
-                                <span class="stat-label">滿意度</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Urgency Section -->
-        <section class="urgency-section">
-            <div class="container">
-                <div class="urgency-content">
-                    <h2>時間緊迫！名額有限</h2>
-                    <div class="countdown-timer" id="countdown">
-                        <div class="countdown-item">
-                            <span class="countdown-number" id="hours">24</span>
-                            <span class="countdown-label">小時</span>
-                        </div>
-                        <div class="countdown-item">
-                            <span class="countdown-number" id="minutes">00</span>
-                            <span class="countdown-label">分鐘</span>
-                        </div>
-                        <div class="countdown-item">
-                            <span class="countdown-number" id="seconds">00</span>
-                            <span class="countdown-label">秒</span>
-                        </div>
-                    </div>
-                    <p class="urgency-text">錯過這次機會，您將需要支付 $997 才能獲得相同內容</p>
-                    <button class="cta-button urgency" onclick="openModal()">
-                        <i class="fas fa-clock"></i>
+                <div class="cta-content">
+                    <h2>立即開始您的學習之旅</h2>
+                    <p>限時免費名額，錯過就沒有了！</p>
+                    <button class="cta-button primary large" onclick="openModal()">
+                        <i class="fas fa-rocket"></i>
                         立即搶先報名
                     </button>
+                    <p class="urgency-text">僅剩最後 15 個名額 • 100% 免費</p>
                 </div>
             </div>
         </section>
 
-        <!-- FAQ Section -->
-        <section class="faq-section">
-            <div class="container">
-                <h2>常見問題</h2>
-                <div class="faq-list">
-                    <div class="faq-item">
-                        <h3 onclick="toggleFAQ(this)">
-                            <i class="fas fa-question-circle"></i>
-                            這個webinar適合什麼程度的人參加？
-                            <i class="fas fa-chevron-down"></i>
-                        </h3>
-                        <div class="faq-content">
-                            <p>適合所有對${cleanData.businessInfo || '專業技能'}感興趣的${cleanData.targetAudience || '學習者'}，從初學者到進階者都能有所收穫。我們會從基礎開始，逐步深入。</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h3 onclick="toggleFAQ(this)">
-                            <i class="fas fa-question-circle"></i>
-                            webinar會錄製嗎？可以重複觀看嗎？
-                            <i class="fas fa-chevron-down"></i>
-                        </h3>
-                        <div class="faq-content">
-                            <p>是的，我們會提供錄製版本給註冊的學員，您可以隨時回看學習，完全免費。</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h3 onclick="toggleFAQ(this)">
-                            <i class="fas fa-question-circle"></i>
-                            真的完全免費嗎？需要信用卡嗎？
-                            <i class="fas fa-chevron-down"></i>
-                        </h3>
-                        <div class="faq-content">
-                            <p>完全免費！不需要信用卡，只需要填寫基本信息即可參加。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Final CTA Section -->
-        <section class="final-cta-section">
-            <div class="container">
-                <div class="final-cta-content">
-                    <h2>立即開始您的${cleanData.businessInfo || '專業技能'}學習之旅</h2>
-                    <p>加入 500+ 位學員的行列，立即獲得專業指導</p>
-                    <button class="cta-button final" onclick="openModal()">
-                        <i class="fas fa-graduation-cap"></i>
-                        立即免費報名
-                    </button>
-                    <p class="guarantee">30天滿意保證 • 隨時可取消</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Registration Form Modal -->
+        <!-- Registration Modal -->
         <div id="registrationModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
-                <div class="modal-header">
-                    <h2>立即免費報名</h2>
-                    <p>填寫以下信息，立即開始學習</p>
-                </div>
-                <form class="registration-form" onsubmit="handleRegistration(event)">
-                    ${cleanData.contactFields.includes('姓名') ? '<div class="form-group"><label for="name">姓名 *</label><input type="text" id="name" name="name" required></div>' : ''}
-                    ${cleanData.contactFields.includes('Email') ? '<div class="form-group"><label for="email">Email *</label><input type="email" id="email" name="email" required></div>' : ''}
-                    ${cleanData.contactFields.includes('電話') ? '<div class="form-group"><label for="phone">電話</label><input type="tel" id="phone" name="phone"></div>' : ''}
-                    ${cleanData.contactFields.includes('Instagram帳號') ? '<div class="form-group"><label for="instagram">Instagram帳號</label><input type="text" id="instagram" name="instagram"></div>' : ''}
-                    <button type="submit" class="submit-btn">
+                <h2>立即報名參加</h2>
+                <form onsubmit="handleRegistration(event)">
+                    <div class="form-group">
+                        <label for="name">姓名 *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">電子郵件 *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">電話號碼 *</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="instagram">Instagram (選填)</label>
+                        <input type="text" id="instagram" name="instagram">
+                    </div>
+                    <button type="submit" class="submit-button">
                         <i class="fas fa-paper-plane"></i>
-                        確認報名
+                        立即報名
                     </button>
-                    <p class="form-note">* 我們承諾保護您的隱私，不會向第三方分享您的信息</p>
                 </form>
             </div>
         </div>
     </div>
 </body>
-</html>`
-
+</html>`;
+      
+      // Check if AI refused the request
+      if (aiResponse && (aiResponse.includes("I'm sorry") || aiResponse.includes("can't assist") || aiResponse.includes("refuse"))) {
+        console.log('AI refused the request, using fallback template')
+        // Use the comprehensive fallback template
       parsedResponse = {
-        html: completeHTML,
+          html: completeHTML,
+          css: generateCSS(visualStyle, brandColors),
+          js: `function openModal() { document.getElementById('registrationModal').style.display = 'block'; }
+function closeModal() { document.getElementById('registrationModal').style.display = 'none'; }
+async function handleRegistration(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = {
+        pageId: window.location.search.split('=')[1] || '',
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        instagram: formData.get('instagram') || '',
+        additionalInfo: ''
+    };
+    try {
+        const response = await fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (response.ok) {
+            alert('感謝您的註冊！');
+            closeModal();
+            event.target.reset();
+        }
+    } catch (error) {
+        alert('提交時發生錯誤，請稍後再試。');
+    }
+}`,
+          title: `${cleanData.businessInfo || 'Webinar'} - 專業Webinar`,
+          metaDescription: cleanData.webinarContent || '專業Webinar課程'
+        }
+      } else {
+        // If AI didn't return valid JSON, use the comprehensive fallback template
+        parsedResponse = {
+          html: completeHTML,
         css: generateCSS(visualStyle, brandColors),
         js: `function openModal() { document.getElementById('registrationModal').style.display = 'block'; }
 function closeModal() { document.getElementById('registrationModal').style.display = 'none'; }
