@@ -232,14 +232,23 @@ ${filledFields}
 - 包含具體的數字、數據和成果承諾
 - 使用轉換心理學的文案技巧
 
-請以JSON格式返回：
+## 重要：輸出格式要求
+請務必以純JSON格式返回，不要包含任何其他文字或說明。JSON格式如下：
+
 {
   "html": "完整的HTML5文檔代碼，包含DOCTYPE、head、body等完整結構",
   "css": "完整的CSS樣式代碼，包含響應式設計和動畫效果", 
   "js": "完整的JavaScript代碼，包含所有互動功能",
   "title": "頁面標題",
   "metaDescription": "頁面描述"
-}`
+}
+
+請確保：
+1. 返回的內容是純JSON格式
+2. 不要包含任何解釋文字或markdown格式
+3. HTML、CSS、JS代碼要完整且可直接使用
+4. 所有字符串都要正確轉義
+5. JSON格式要完全有效`
 
     // Generate landing page with AI
     let aiResponse: string | null = null
@@ -1786,7 +1795,43 @@ body {
     // Parse AI response
     let parsedResponse
     try {
-      parsedResponse = JSON.parse(aiResponse)
+      // Function to extract JSON from AI response
+      const extractJSON = (response: string) => {
+        let cleanResponse = response.trim()
+        
+        // Remove any markdown code blocks
+        cleanResponse = cleanResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+        
+        // Try to find JSON object boundaries
+        const jsonStart = cleanResponse.indexOf('{')
+        const jsonEnd = cleanResponse.lastIndexOf('}') + 1
+        
+        if (jsonStart !== -1 && jsonEnd > jsonStart) {
+          cleanResponse = cleanResponse.substring(jsonStart, jsonEnd)
+        }
+        
+        // Try to find JSON array if object not found
+        if (!cleanResponse.startsWith('{')) {
+          const arrayStart = cleanResponse.indexOf('[')
+          const arrayEnd = cleanResponse.lastIndexOf(']') + 1
+          if (arrayStart !== -1 && arrayEnd > arrayStart) {
+            cleanResponse = cleanResponse.substring(arrayStart, arrayEnd)
+          }
+        }
+        
+        return cleanResponse
+      }
+      
+      const cleanResponse = extractJSON(aiResponse)
+      console.log('Cleaned AI response for JSON parsing:', cleanResponse.substring(0, 200) + '...')
+      
+      parsedResponse = JSON.parse(cleanResponse)
+      
+      // Validate that we have the required fields
+      if (!parsedResponse.html || !parsedResponse.css) {
+        throw new Error('AI response missing required fields (html, css)')
+      }
+      
       // Apply visual style to AI-generated CSS
       if (parsedResponse.css) {
         parsedResponse.css = generateCSS(visualStyle, brandColors) + '\n' + parsedResponse.css
@@ -1795,6 +1840,7 @@ body {
       }
     } catch (error) {
       console.error('Failed to parse AI response as JSON:', error)
+      console.error('Raw AI response:', aiResponse.substring(0, 500) + '...')
       // If AI didn't return valid JSON, create a comprehensive HTML structure
       const completeHTML = `<!DOCTYPE html>
 <html lang="zh-TW">
