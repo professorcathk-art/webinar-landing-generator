@@ -501,25 +501,28 @@ ${filledFields}
       
       // Handle dynamic form fields based on user selection
       if (contactFields && contactFields.length > 0) {
-        // Hide all form fields first
-        result = result.replace(/<div class="form-group">[\s\S]*?<\/div>/g, (match) => {
-          // Check if this form group contains a field that should be shown
-          const shouldShow = contactFields.some(field => {
-            if (field === '姓名' && match.includes('name')) return true
-            if (field === 'Email' && match.includes('email')) return true
-            if (field === '電話' && match.includes('phone')) return true
-            if (field === 'Instagram帳號' && match.includes('instagram')) return true
-            return false
+        // For cyber template, use the specific logic
+        if (templateName === 'cyber-funnel-template') {
+          // Hide all form fields first, then show only selected ones
+          result = result.replace(/<div class="form-group">[\s\S]*?<\/div>/g, (match) => {
+            // Always show name and email as they are required
+            if (match.includes('name') || match.includes('email')) {
+              return match
+            }
+            
+            // Check if this form group contains a field that should be shown
+            const shouldShow = contactFields.some(field => {
+              if (field === '姓名' && match.includes('name')) return true
+              if (field === 'Email' && match.includes('email')) return true
+              if (field === '電話' && match.includes('phone')) return true
+              if (field === 'Instagram帳號' && match.includes('instagram')) return true
+              return false
+            })
+            
+            // Show other fields only if selected
+            return shouldShow ? match : ''
           })
-          
-          // Always show name and email as they are required
-          if (match.includes('name') || match.includes('email')) {
-            return match
-          }
-          
-          // Show other fields only if selected
-          return shouldShow ? match : ''
-        })
+        }
         
         // Add phone field if selected
         if (contactFields.includes('電話')) {
@@ -592,6 +595,9 @@ ${filledFields}
           result = result.replace(/<div class="form-group">[\s\S]*?<select[^>]*name="role"[^>]*>[\s\S]*?<\/div>/g, '')
           result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="role"[^>]*>[\s\S]*?<\/div>/g, '')
         }
+      } else {
+        // If no contact fields specified, show all fields by default
+        console.log('No contact fields specified, showing all form fields')
       }
       
       // Replace value points
@@ -815,7 +821,8 @@ ${filledFields}
       templateJS = fs.readFileSync(path.join(templateDir, 'app.js'), 'utf8')
     } catch (error) {
       console.error('Error reading template files:', error)
-      throw new Error(`Failed to read template files for ${templateName}: ${error.message}`)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      throw new Error(`Failed to read template files for ${templateName}: ${errorMessage}`)
     }
     
     // Apply template with AI-generated content
