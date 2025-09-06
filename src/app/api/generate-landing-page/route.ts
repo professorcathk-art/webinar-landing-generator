@@ -537,13 +537,44 @@ ${filledFields}
     const landingPage = await prisma.landingPage.create({
       data: {
         id: uuidv4(),
-        html: parsedResponse.html,
-        css: parsedResponse.css,
-        js: parsedResponse.js,
         title: parsedResponse.title,
-        metaDescription: parsedResponse.metaDescription,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        slug: `landing-page-${uuidv4()}`,
+        content: {
+          title: parsedResponse.title,
+          metaDescription: parsedResponse.metaDescription,
+          brandName: parsedResponse.brandName,
+          heroTitle: parsedResponse.heroTitle,
+          heroSubtitle: parsedResponse.heroSubtitle,
+          ctaButton: parsedResponse.ctaButton,
+          valuePropositionTitle: parsedResponse.valuePropositionTitle,
+          valuePoints: parsedResponse.valuePoints,
+          socialProofTitle: parsedResponse.socialProofTitle,
+          testimonials: parsedResponse.testimonials,
+          formTitle: parsedResponse.formTitle,
+          formSubtitle: parsedResponse.formSubtitle,
+          submitButton: parsedResponse.submitButton,
+          thankYouTitle: parsedResponse.thankYouTitle,
+          thankYouMessage: parsedResponse.thankYouMessage,
+          nextSteps: parsedResponse.nextSteps,
+          videoTitle: parsedResponse.videoTitle,
+          whatsappText: parsedResponse.whatsappText
+        },
+        htmlContent: parsedResponse.html,
+        cssContent: parsedResponse.css,
+        jsContent: parsedResponse.js,
+        businessInfo: cleanData.businessInfo,
+        webinarContent: cleanData.webinarContent,
+        targetAudience: cleanData.targetAudience,
+        webinarInfo: cleanData.webinarInfo,
+        instructorCreds: cleanData.instructorCreds,
+        contactFields: cleanData.contactFields,
+        visualStyle: cleanData.visualStyle,
+        brandColors: cleanData.brandColors,
+        uniqueSellingPoints: cleanData.uniqueSellingPoints,
+        upsellProducts: cleanData.upsellProducts,
+        specialRequirements: cleanData.specialRequirements,
+        photos: cleanData.photos,
+        userId: 'system' // TODO: Get actual user ID from session
       }
     })
 
@@ -552,7 +583,7 @@ ${filledFields}
       landingPage: {
         id: landingPage.id,
         title: landingPage.title,
-        metaDescription: landingPage.metaDescription,
+        slug: landingPage.slug,
         createdAt: landingPage.createdAt
       }
     })
