@@ -136,6 +136,8 @@ export async function POST(request: NextRequest) {
       templateName = 'professional-funnel-template' // Use professional for warm style
     } else if (visualStyle === '創意活潑') {
       templateName = 'cyber-funnel-template' // Use cyber for creative style
+    } else if (visualStyle === '吸血鬼') {
+      templateName = 'vampire-aggressive-funnel' // Use vampire for aggressive style
     } else if (visualStyle === '其他') {
       templateName = 'professional-funnel-template' // Default to professional
     }
@@ -226,6 +228,66 @@ ${filledFields}
 - 使用繁體中文
 - 內容要具體、有說服力，具有科技感和未來感
 - 包含緊急感和社會證明
+- 只使用提供的客戶信息，不要添加虛假內容
+- 確保JSON格式正確
+- 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
+- 不要生成完整的網頁，只生成文案內容`
+      } else if (templateName === 'vampire-aggressive-funnel') {
+        // Vampire template prompt
+        return `為吸血鬼風格webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
+
+參考高轉換頁面結構：
+- Hero區使用禁忌感標題和緊急感元素 (如：業界禁忌、限時48小時、僅限100人)
+- 問題區突出財富痛點，解決方案區展示禁忌機密和財富密碼
+- 講師介紹包含禁忌成就、財富突破和血狼老師身份
+- 使用吸血鬼感CTA按鈕 (如：立即搶奪財富密碼、血狼老師指導、禁忌揭露)
+- 階梯式價值展示：禁忌揭露 → 財富密碼 → 血狼老師 → 社會證明 → CTA
+- 信任元素：具體數字、財富見證、禁忌資歷
+
+客戶信息：
+${filledFields}
+
+請生成以下文案內容，返回JSON格式：
+{
+  "pageTitle": "頁面標題",
+  "brandName": "品牌名稱",
+  "heroTitle": "主要標題 - 吸引目標受眾的問題或承諾",
+  "heroSubtitle": "副標題 - 詳細說明價值主張",
+  "badgeText": "禁忌標籤文字",
+  "ctaButton": "CTA按鈕文字",
+  "valuePoint1": "價值點1 - 具體益處",
+  "valuePoint2": "價值點2 - 解決痛點",
+  "valuePoint3": "價值點3 - 獨特優勢",
+  "valuePoint1Description": "第一個價值點的詳細描述",
+  "testimonial1": "客戶見證1",
+  "testimonial2": "客戶見證2",
+  "formTitle": "表單標題",
+  "formSubtitle": "表單副標題",
+  "submitButton": "提交按鈕文字",
+  "thankYouTitle": "感謝頁面標題",
+  "thankYouMessage": "感謝頁面訊息",
+  "nextSteps": [
+    {
+      "title": "步驟1標題",
+      "description": "步驟1描述"
+    },
+    {
+      "title": "步驟2標題",
+      "description": "步驟2描述"
+    },
+    {
+      "title": "步驟3標題",
+      "description": "步驟3描述"
+    }
+  ],
+  "videoTitle": "影片標題",
+  "whatsappText": "WhatsApp聯繫文字"
+}
+
+要求：
+- 使用繁體中文
+- 內容要具體、有說服力，具有吸血鬼風格和禁忌感
+- 包含緊急感和社會證明，使用禁忌、財富密碼等元素
 - 只使用提供的客戶信息，不要添加虛假內容
 - 確保JSON格式正確
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
@@ -385,6 +447,24 @@ ${filledFields}
           '突破性架構設計，實現毫秒級響應，零延遲體驗': contentData.valuePoint2Description || '突破性架構設計，實現毫秒級響應，零延遲體驗',
           '融合區塊鏈與量子計算，構建下一代數位生態系統': contentData.valuePoint3Description || '融合區塊鏈與量子計算，構建下一代數位生態系統',
           '全球企業信任之選': contentData.socialProofTitle || '全球企業信任之選'
+        }
+      } else if (templateName === 'vampire-aggressive-funnel') {
+        // Vampire template replacements
+        replacements = {
+          '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
+          '【禁忌揭露】99%的人不知道的財富密碼｜限時48小時免費公開': contentData.pageTitle || '【禁忌揭露】99%的人不知道的財富密碼｜限時48小時免費公開',
+          '業界禁忌！首次公開價值$50,000的財富密碼。限時48小時，僅限100人。錯過永遠後悔！': contentData.heroSubtitle || '業界禁忌！首次公開價值$50,000的財富密碼。限時48小時，僅限100人。錯過永遠後悔！',
+          '⚡ 業界禁忌首次公開 ⚡': contentData.badgeText || '⚡ 業界禁忌首次公開 ⚡',
+          '【警告】': contentData.heroTitle || '【警告】',
+          '價值 $50,000 的機密資料': contentData.valuePoint1 || '價值 $50,000 的機密資料',
+          '限時48小時免費': contentData.valuePoint2 || '限時48小時免費',
+          '富豪絕不外流的財富密碼': contentData.valuePoint3 || '富豪絕不外流的財富密碼',
+          '首次公開！價值$50,000的頂級機密，48小時後永遠封存': contentData.valuePoint1Description || '首次公開！價值$50,000的頂級機密，48小時後永遠封存',
+          '跟著血狼老師3個月，我從負債50萬變成資產千萬！財富密碼太可怕了，我老婆都不敢相信...': contentData.testimonial1 || '跟著血狼老師3個月，我從負債50萬變成資產千萬！財富密碼太可怕了，我老婆都不敢相信...',
+          '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！': contentData.testimonial2 || '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！',
+          '立即搶奪財富密碼': contentData.ctaButton || '立即搶奪財富密碼',
+          '價值$50,000，現在免費': contentData.formSubtitle || '價值$50,000，現在免費',
+          '搶奪財富密碼': contentData.formTitle || '搶奪財富密碼'
         }
       } else {
         // Professional template replacements

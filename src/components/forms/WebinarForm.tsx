@@ -25,7 +25,7 @@ interface FormData {
 }
 
 const contactFieldOptions = ['姓名', 'Instagram帳號', '電話', 'Email']
-const visualStyleOptions = ['科技感', '溫暖生活化', '專業商務', '創意活潑', '其他']
+const visualStyleOptions = ['科技感', '溫暖生活化', '專業商務', '創意活潑', '吸血鬼', '其他']
 
 // Color Palette Preview Component
 function ColorPalettePreview({ colors }: { colors?: string }) {
@@ -116,6 +116,7 @@ export default function WebinarForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [hasAutoSubmitted, setHasAutoSubmitted] = useState(false)
 
   const {
     control,
@@ -159,10 +160,11 @@ export default function WebinarForm() {
         sessionStorage.removeItem('pendingFormData')
         sessionStorage.removeItem('pendingFiles')
         
-        // Auto-submit the form if user is authenticated
+        // Auto-submit the form if user is authenticated (only once)
         const checkAndSubmit = async () => {
           const isAuthenticated = await checkAuthentication()
-          if (isAuthenticated) {
+          if (isAuthenticated && !isSubmitting && !hasAutoSubmitted) {
+            setHasAutoSubmitted(true)
             await onSubmit(formData)
           }
         }

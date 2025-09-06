@@ -114,8 +114,8 @@ export default function EditorPage() {
         throw new Error(result.error || 'Failed to publish page')
       }
       
-      // Generate the public URL
-      const publicUrl = `${window.location.origin}/preview?id=${pageId}`
+      // Generate the public URL (clean URL without preview)
+      const publicUrl = `${window.location.origin}/page/${pageId}`
       
       // Show success message with copy option
       const shouldCopy = confirm(
