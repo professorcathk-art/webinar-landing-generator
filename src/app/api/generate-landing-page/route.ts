@@ -631,34 +631,9 @@ ${filledFields}
         }
       }
       
-      // General form field handling for all templates
-      if (contactFields && contactFields.length > 0) {
-        // Hide phone field if not selected (for all templates)
-        if (!contactFields.includes('電話') && !contactFields.includes('電話號碼')) {
-          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="phone"[^>]*>[\s\S]*?<\/div>/g, '')
-          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*type="tel"[^>]*>[\s\S]*?<\/div>/g, '')
-        }
-        
-        // Hide Instagram field if not selected (for all templates)
-        if (!contactFields.includes('Instagram帳號') && !contactFields.includes('Instagram')) {
-          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="instagram"[^>]*>[\s\S]*?<\/div>/g, '')
-        }
-        
-        // Hide company field if not selected (for all templates)
-        if (!contactFields.includes('公司名稱') && !contactFields.includes('公司')) {
-          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="company"[^>]*>[\s\S]*?<\/div>/g, '')
-          result = result.replace(/<div class="form-group">[\s\S]*?<select[^>]*name="company"[^>]*>[\s\S]*?<\/div>/g, '')
-        }
-        
-        // Hide role field if not selected (for all templates)
-        if (!contactFields.includes('職位') && !contactFields.includes('職務')) {
-          result = result.replace(/<div class="form-group">[\s\S]*?<select[^>]*name="role"[^>]*>[\s\S]*?<\/div>/g, '')
-          result = result.replace(/<div class="form-group">[\s\S]*?<input[^>]*name="role"[^>]*>[\s\S]*?<\/div>/g, '')
-        }
-      } else {
-        // If no contact fields specified, show all fields by default
-        console.log('No contact fields specified, showing all form fields')
-      }
+    // All templates now use standardized form fields: name, email, phone
+    // No need for complex field filtering since all forms are simplified
+    console.log('Using standardized form fields: name, email, phone')
       
       // Replace value points
       if (contentData.valuePoints && contentData.valuePoints.length > 0) {

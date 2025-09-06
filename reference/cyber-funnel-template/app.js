@@ -704,11 +704,8 @@ class CyberFunnelApp {
             name: data.name || '',
             email: data.email || '',
             phone: data.phone || '',
-            instagram: data.instagram || '',
             additionalInfo: {
                 formType: 'cyber-funnel-template',
-                company: data.company || '',
-                role: data.role || '',
                 submissionTime: new Date().toISOString(),
                 userAgent: navigator.userAgent
             }

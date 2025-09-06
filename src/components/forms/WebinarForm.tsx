@@ -24,7 +24,7 @@ interface FormData {
   photos?: File[]
 }
 
-const contactFieldOptions = ['姓名', 'Instagram帳號', '電話', 'Email']
+const contactFieldOptions = ['姓名', '電話', 'Email']
 const visualStyleOptions = ['科技感', '溫暖生活化', '專業商務', '創意活潑', '吸血鬼', '其他']
 
 // Color Palette Preview Component
@@ -127,8 +127,8 @@ export default function WebinarForm() {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      contactFields: ['姓名', 'Email'],
-      visualStyle: '現代簡約',
+      contactFields: ['姓名', '電話', 'Email'],
+      visualStyle: '科技感',
     },
   })
 

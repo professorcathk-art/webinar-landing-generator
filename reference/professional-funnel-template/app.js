@@ -649,14 +649,11 @@ async function submitToLeadsAPI(formData) {
     // Prepare data for leads API
     const leadData = {
         pageId: pageId,
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        name: formData.name || '',
         email: formData.email || '',
         phone: formData.phone || '',
-        instagram: formData.instagram || '',
         additionalInfo: {
             formType: 'professional-funnel-template',
-            company: formData.company || '',
-            role: formData.role || '',
             submissionTime: new Date().toISOString(),
             userAgent: navigator.userAgent
         }

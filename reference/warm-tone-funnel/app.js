@@ -126,10 +126,10 @@ function initializeFormHandling() {
         
         // Get form elements
         const nameEl = document.getElementById('name');
-        const contactEl = document.getElementById('contact');
-        const concernEl = document.getElementById('concern');
+        const emailEl = document.getElementById('email');
+        const phoneEl = document.getElementById('phone');
         
-        if (!nameEl || !contactEl) {
+        if (!nameEl || !emailEl || !phoneEl) {
             console.error('表單元素未找到');
             showWarmMessage('表單出現小問題，請重新整理頁面再試一次 😔', 'error');
             return;
@@ -138,8 +138,8 @@ function initializeFormHandling() {
         // Get form data
         const formData = {
             name: nameEl.value.trim(),
-            contact: contactEl.value.trim(),
-            concern: concernEl ? concernEl.value.trim() : ''
+            email: emailEl.value.trim(),
+            phone: phoneEl.value.trim()
         };
         
         console.log('收到的訊息:', formData);
@@ -152,18 +152,25 @@ function initializeFormHandling() {
             return;
         }
         
-        if (!formData.contact) {
-            showWarmMessage('請分享您的聯絡方式，這樣我們就能與您保持溫暖的聯繫 💕', 'gentle');
-            contactEl.focus();
-            showFieldFeedback(contactEl, '請輸入您的聯絡方式 💕', 'gentle-reminder');
+        if (!formData.email) {
+            showWarmMessage('請分享您的電子郵件，這樣我們就能與您保持溫暖的聯繫 💕', 'gentle');
+            emailEl.focus();
+            showFieldFeedback(emailEl, '請輸入您的電子郵件 💕', 'gentle-reminder');
             return;
         }
         
-        // Basic email validation if it looks like an email
-        if (formData.contact.includes('@') && !isValidEmail(formData.contact)) {
+        if (!formData.phone) {
+            showWarmMessage('請分享您的電話號碼，這樣我們就能與您保持溫暖的聯繫 📞', 'gentle');
+            phoneEl.focus();
+            showFieldFeedback(phoneEl, '請輸入您的電話號碼 📞', 'gentle-reminder');
+            return;
+        }
+        
+        // Basic email validation
+        if (!isValidEmail(formData.email)) {
             showWarmMessage('請確認您的電子郵件格式是否正確，這樣我們才能與您聯繫 💌', 'gentle');
-            contactEl.focus();
-            showFieldFeedback(contactEl, '請確認電子郵件格式 📧', 'gentle-reminder');
+            emailEl.focus();
+            showFieldFeedback(emailEl, '請確認電子郵件格式 📧', 'gentle-reminder');
             return;
         }
         
@@ -208,7 +215,7 @@ function initializeFormHandling() {
                 submitButton.disabled = false;
                 
                 // Show error message
-                showFieldFeedback(contactEl, '提交失敗，請稍後再試', 'error');
+                showFieldFeedback(emailEl, '提交失敗，請稍後再試', 'error');
                 console.error('Form submission error:', error);
             });
     });
@@ -849,12 +856,10 @@ async function submitToLeadsAPI(formData) {
     const leadData = {
         pageId: pageId,
         name: formData.name || '',
-        email: formData.contact || '', // warm-tone uses 'contact' field
-        phone: '', // warm-tone doesn't have separate phone field
-        instagram: '',
+        email: formData.email || '',
+        phone: formData.phone || '',
         additionalInfo: {
             formType: 'warm-tone-funnel',
-            concern: formData.concern || '',
             submissionTime: new Date().toISOString(),
             userAgent: navigator.userAgent
         }
