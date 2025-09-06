@@ -1677,8 +1677,8 @@ body {
     // Parse AI response
     let parsedResponse
     try {
-      // Function to extract and reconstruct JSON from AI response
-      const extractAndReconstructJSON = (response: string) => {
+      // Function to extract content from malformed JSON using string manipulation
+      const extractContentFromMalformedJSON = (response: string) => {
         let cleanResponse = response.trim()
         
         // Remove any markdown code blocks
@@ -1692,67 +1692,167 @@ body {
           cleanResponse = cleanResponse.substring(jsonStart, jsonEnd)
         }
         
-        // Extract HTML content using a more robust approach
-        // Use regex that can handle multiline content without /s flag
-        const htmlMatch = cleanResponse.match(/"html"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
-        const cssMatch = cleanResponse.match(/"css"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
-        const jsMatch = cleanResponse.match(/"js"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
-        const titleMatch = cleanResponse.match(/"title"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
-        const metaDescriptionMatch = cleanResponse.match(/"metaDescription"\s*:\s*"((?:[^"\\]|\\.|[\r\n])*)"/)
+        // Extract content by finding the start of each field and manually parsing
+        const result: any = {}
         
-        if (htmlMatch || cssMatch || jsMatch) {
-          // Reconstruct JSON with properly escaped content
-          const result: any = {}
+        // Extract HTML content
+        const htmlStart = cleanResponse.indexOf('"html": "')
+        if (htmlStart !== -1) {
+          const htmlStartPos = htmlStart + 9 // Length of '"html": "'
+          let htmlContent = ''
+          let pos = htmlStartPos
+          let inEscape = false
           
-          if (htmlMatch) {
-            // Clean and properly escape HTML content
-            let htmlContent = htmlMatch[1]
-              .replace(/\\n/g, '\n')
-              .replace(/\\"/g, '"')
-              .replace(/\\t/g, '\t')
-            
-            // Properly escape quotes in HTML content
-            htmlContent = htmlContent.replace(/"/g, '\\"')
-            result.html = htmlContent
+          while (pos < cleanResponse.length) {
+            const char = cleanResponse[pos]
+            if (inEscape) {
+              htmlContent += char
+              inEscape = false
+            } else if (char === '\\') {
+              htmlContent += char
+              inEscape = true
+            } else if (char === '"' && cleanResponse[pos + 1] === ',') {
+              // Found end of HTML content
+              break
+            } else if (char === '"' && cleanResponse[pos + 1] === '}') {
+              // Found end of HTML content (last field)
+              break
+            } else {
+              htmlContent += char
+            }
+            pos++
           }
           
-          if (cssMatch) {
-            let cssContent = cssMatch[1]
-              .replace(/\\n/g, '\n')
-              .replace(/\\"/g, '"')
-              .replace(/\\t/g, '\t')
-            cssContent = cssContent.replace(/"/g, '\\"')
-            result.css = cssContent
-          }
+          // Clean up the HTML content
+          htmlContent = htmlContent
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\t/g, '\t')
           
-          if (jsMatch) {
-            let jsContent = jsMatch[1]
-              .replace(/\\n/g, '\n')
-              .replace(/\\"/g, '"')
-              .replace(/\\t/g, '\t')
-            jsContent = jsContent.replace(/"/g, '\\"')
-            result.js = jsContent
-          }
-          
-          if (titleMatch) {
-            let titleContent = titleMatch[1]
-              .replace(/\\"/g, '"')
-            titleContent = titleContent.replace(/"/g, '\\"')
-            result.title = titleContent
-          }
-          
-          if (metaDescriptionMatch) {
-            let metaContent = metaDescriptionMatch[1]
-              .replace(/\\"/g, '"')
-            metaContent = metaContent.replace(/"/g, '\\"')
-            result.metaDescription = metaContent
-          }
-          
-          return JSON.stringify(result)
+          result.html = htmlContent
         }
         
-        // Fallback to original approach if extraction fails
-        return cleanResponse
+        // Extract CSS content
+        const cssStart = cleanResponse.indexOf('"css": "')
+        if (cssStart !== -1) {
+          const cssStartPos = cssStart + 8 // Length of '"css": "'
+          let cssContent = ''
+          let pos = cssStartPos
+          let inEscape = false
+          
+          while (pos < cleanResponse.length) {
+            const char = cleanResponse[pos]
+            if (inEscape) {
+              cssContent += char
+              inEscape = false
+            } else if (char === '\\') {
+              cssContent += char
+              inEscape = true
+            } else if (char === '"' && (cleanResponse[pos + 1] === ',' || cleanResponse[pos + 1] === '}')) {
+              break
+            } else {
+              cssContent += char
+            }
+            pos++
+          }
+          
+          cssContent = cssContent
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\t/g, '\t')
+          
+          result.css = cssContent
+        }
+        
+        // Extract JS content
+        const jsStart = cleanResponse.indexOf('"js": "')
+        if (jsStart !== -1) {
+          const jsStartPos = jsStart + 7 // Length of '"js": "'
+          let jsContent = ''
+          let pos = jsStartPos
+          let inEscape = false
+          
+          while (pos < cleanResponse.length) {
+            const char = cleanResponse[pos]
+            if (inEscape) {
+              jsContent += char
+              inEscape = false
+            } else if (char === '\\') {
+              jsContent += char
+              inEscape = true
+            } else if (char === '"' && (cleanResponse[pos + 1] === ',' || cleanResponse[pos + 1] === '}')) {
+              break
+            } else {
+              jsContent += char
+            }
+            pos++
+          }
+          
+          jsContent = jsContent
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\t/g, '\t')
+          
+          result.js = jsContent
+        }
+        
+        // Extract title
+        const titleStart = cleanResponse.indexOf('"title": "')
+        if (titleStart !== -1) {
+          const titleStartPos = titleStart + 10 // Length of '"title": "'
+          let titleContent = ''
+          let pos = titleStartPos
+          let inEscape = false
+          
+          while (pos < cleanResponse.length) {
+            const char = cleanResponse[pos]
+            if (inEscape) {
+              titleContent += char
+              inEscape = false
+            } else if (char === '\\') {
+              titleContent += char
+              inEscape = true
+            } else if (char === '"' && (cleanResponse[pos + 1] === ',' || cleanResponse[pos + 1] === '}')) {
+              break
+            } else {
+              titleContent += char
+            }
+            pos++
+          }
+          
+          titleContent = titleContent.replace(/\\"/g, '"')
+          result.title = titleContent
+        }
+        
+        // Extract metaDescription
+        const metaStart = cleanResponse.indexOf('"metaDescription": "')
+        if (metaStart !== -1) {
+          const metaStartPos = metaStart + 20 // Length of '"metaDescription": "'
+          let metaContent = ''
+          let pos = metaStartPos
+          let inEscape = false
+          
+          while (pos < cleanResponse.length) {
+            const char = cleanResponse[pos]
+            if (inEscape) {
+              metaContent += char
+              inEscape = false
+            } else if (char === '\\') {
+              metaContent += char
+              inEscape = true
+            } else if (char === '"' && (cleanResponse[pos + 1] === ',' || cleanResponse[pos + 1] === '}')) {
+              break
+            } else {
+              metaContent += char
+            }
+            pos++
+          }
+          
+          metaContent = metaContent.replace(/\\"/g, '"')
+          result.metaDescription = metaContent
+        }
+        
+        return result
       }
       
       // First, try to parse the AI response directly
@@ -1778,13 +1878,12 @@ body {
       } catch (parseError) {
         console.error('Direct JSON parse failed, trying extraction method:', parseError)
         
-        // If direct parsing fails, try the extraction method
+        // If direct parsing fails, try the manual extraction method
         try {
-          const extractedJSON = extractAndReconstructJSON(aiResponse)
-          parsedResponse = JSON.parse(extractedJSON)
-          console.log('Extraction method successful')
+          parsedResponse = extractContentFromMalformedJSON(aiResponse)
+          console.log('Manual extraction method successful')
         } catch (extractionError) {
-          console.error('Extraction method also failed, using fallback template:', extractionError)
+          console.error('Manual extraction method also failed, using fallback template:', extractionError)
           throw new Error('Failed to parse AI response')
         }
       }
