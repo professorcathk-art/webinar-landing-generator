@@ -296,27 +296,26 @@ ${filledFields}
     const applyTemplate = (templateContent: string, contentData: any) => {
       let result = templateContent
       
-      // Replace simple placeholders
+      // Replace simple placeholders - match actual template placeholders
       const replacements = {
         '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
-        '品牌名稱': contentData.brandName || '您的品牌',
-        '主要標題 - 吸引目標受眾的問題或承諾': contentData.heroTitle || '立即提升您的技能',
-        '副標題 - 詳細說明價值主張': contentData.heroSubtitle || '專業培訓，限時免費',
-        'CTA按鈕文字': contentData.ctaButton || '立即搶先報名',
-        '價值主張標題': contentData.valuePropositionTitle || '為什麼選擇我們？',
-        '社會證明標題': contentData.socialProofTitle || '學員見證',
-        '表單標題': contentData.formTitle || '立即報名',
-        '表單副標題': contentData.formSubtitle || '填寫信息，立即開始',
-        '提交按鈕文字': contentData.submitButton || '立即報名',
-        '感謝頁面標題': contentData.thankYouTitle || '歡迎加入',
-        '感謝頁面訊息': contentData.thankYouMessage || '感謝您的信任',
-        '影片標題': contentData.videoTitle || '產品演示影片',
-        'WhatsApp聯繫文字': contentData.whatsappText || 'WhatsApp 諮詢'
+        '[您的科技品牌]': contentData.brandName || '您的品牌',
+        '[主要標題 - 科技創新解決方案]': contentData.heroTitle || '立即提升您的技能',
+        '[副標題 - 數位轉型價值主張]': contentData.heroSubtitle || '專業培訓，限時免費',
+        '[立即獲取]': contentData.ctaButton || '立即搶先報名',
+        '[獲取數位解決方案]': contentData.formTitle || '立即報名',
+        '[立即獲得先進技術資源]': contentData.formSubtitle || '填寫信息，立即開始',
+        '[歡迎加入科技未來]': contentData.thankYouTitle || '歡迎加入',
+        '[感謝您的信任，準備迎接數位革命]': contentData.thankYouMessage || '感謝您的信任',
+        '[INPUT_NAME]': '姓名',
+        '[INPUT_EMAIL]': 'Email',
+        '[INPUT_COMPANY]': '公司名稱',
+        '[SELECT_ROLE]': '職位'
       }
       
       // Apply simple replacements
       Object.entries(replacements).forEach(([placeholder, value]) => {
-        result = result.replace(new RegExp(placeholder, 'g'), value)
+        result = result.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value)
       })
       
       // Replace value points
@@ -325,9 +324,6 @@ ${filledFields}
           result = result.replace(`[數位優勢${index + 1}]`, point.title || `優勢${index + 1}`)
           result = result.replace(`[創新解決方案${index + 1}]`, point.title || `解決方案${index + 1}`)
           result = result.replace(`[未來技術${index + 1}]`, point.title || `技術${index + 1}`)
-          result = result.replace(`[優勢描述]`, point.description || `描述${index + 1}`)
-          result = result.replace(`[解決方案描述]`, point.description || `描述${index + 1}`)
-          result = result.replace(`[技術描述]`, point.description || `描述${index + 1}`)
         })
       }
       
@@ -337,14 +333,6 @@ ${filledFields}
           result = result.replace(`[科技客戶見證${index + 1}]`, testimonial.testimonial || `見證${index + 1}`)
           result = result.replace(`[數據成果見證${index + 1}]`, testimonial.testimonial || `見證${index + 1}`)
           result = result.replace(`[創新成果證明]`, testimonial.testimonial || `見證${index + 1}`)
-        })
-      }
-      
-      // Replace next steps
-      if (contentData.nextSteps && contentData.nextSteps.length > 0) {
-        contentData.nextSteps.forEach((step: any, index: number) => {
-          result = result.replace(`[步驟${index + 1}標題]`, step.title || `步驟${index + 1}`)
-          result = result.replace(`[步驟${index + 1}描述]`, step.description || `描述${index + 1}`)
         })
       }
       
