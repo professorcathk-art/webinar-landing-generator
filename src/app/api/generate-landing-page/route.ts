@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 const prisma = new PrismaClient()
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1",
-  baseURL: "https://api.aimlapi.com/v1",
+  baseURL: process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1",
 })
 
 export async function GET(request: NextRequest) {
@@ -174,9 +174,15 @@ export async function POST(request: NextRequest) {
     try {
       console.log('Attempting to call AIML API with model: gpt-4o')
       const apiKey = process.env.OPENAI_API_KEY || "dd1c7187d68d479985be534c775535b1"
+      const baseURL = process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1"
       console.log('API Key (first 8 chars):', apiKey.substring(0, 8) + "...")
-      console.log('Base URL:', "https://api.aimlapi.com/v1")
+      console.log('Base URL:', baseURL)
       console.log('Using environment variable:', !!process.env.OPENAI_API_KEY)
+      
+      // Check if we have a valid API key
+      if (!apiKey || apiKey.length < 10) {
+        throw new Error('Invalid API key configuration')
+      }
       
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
@@ -196,12 +202,26 @@ ${prompt}`
       }
       console.log('AI API call successful')
     } catch (openaiError) {
-      console.error('OpenAI API error details:', {
+      const errorDetails = {
         message: openaiError instanceof Error ? openaiError.message : 'Unknown error',
         status: (openaiError as any)?.status,
         statusText: (openaiError as any)?.statusText,
-        response: (openaiError as any)?.response?.data
-      })
+        response: (openaiError as any)?.response?.data,
+        apiKey: process.env.OPENAI_API_KEY ? 'Using env var' : 'Using fallback key',
+        baseURL: process.env.OPENAI_BASE_URL || "https://api.aimlapi.com/v1"
+      }
+      
+      console.error('OpenAI API error details:', errorDetails)
+      
+      // Provide specific guidance for 403 errors
+      if ((openaiError as any)?.status === 403) {
+        console.error('403 Forbidden Error - Possible causes:')
+        console.error('1. API key is invalid or expired')
+        console.error('2. API key has insufficient permissions')
+        console.error('3. API key has reached quota limits')
+        console.error('4. API endpoint is not accessible')
+        console.error('5. Environment variable OPENAI_API_KEY not set in Vercel')
+      }
       
       // If API fails (quota exceeded, 403, or any other error), use mock data for testing
       console.log('Using mock data due to API error:', openaiError instanceof Error ? openaiError.message : 'Unknown error')

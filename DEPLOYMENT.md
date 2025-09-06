@@ -51,17 +51,53 @@ git push -u origin main
 ### 3. Configure Environment Variables
 In your Vercel project settings, add these environment variables:
 
-| Variable | Value |
-|----------|-------|
-| `DATABASE_URL` | Your PostgreSQL connection string |
-| `OPENAI_API_KEY` | Your OpenAI API key (starts with `sk-`) |
-| `NEXTAUTH_SECRET` | A random string (you can generate one with `openssl rand -base64 32`) |
-| `NEXTAUTH_URL` | `https://your-project-name.vercel.app` (replace with your actual domain) |
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `DATABASE_URL` | Your PostgreSQL connection string | Required for database operations |
+| `OPENAI_API_KEY` | Your OpenAI API key (starts with `sk-`) | **Required** - Get from OpenAI or use AIML API key |
+| `NEXTAUTH_SECRET` | A random string (you can generate one with `openssl rand -base64 32`) | Required for authentication |
+| `NEXTAUTH_URL` | `https://your-project-name.vercel.app` (replace with your actual domain) | Your deployment URL |
+| `OPENAI_BASE_URL` | `https://api.aimlapi.com/v1` (optional) | Custom API endpoint if using different provider |
+
+**Important Notes:**
+- The `OPENAI_API_KEY` is **required** for the AI features to work
+- If you don't set this environment variable, the app will use a fallback key that may have quota limits
+- You can get an API key from [OpenAI](https://platform.openai.com) or use the AIML API service
+- Make sure to set the environment variable in Vercel dashboard under Settings > Environment Variables
 
 ### 4. Deploy
 1. Click "Deploy"
 2. Wait for the build to complete (usually 2-3 minutes)
 3. Your app will be available at the provided URL
+
+## Troubleshooting
+
+### OpenAI API 403 Error
+If you see a "403 status code (no body)" error when creating landing pages:
+
+1. **Check Environment Variables**: Ensure `OPENAI_API_KEY` is set in Vercel
+   - Go to your Vercel project dashboard
+   - Navigate to Settings > Environment Variables
+   - Add `OPENAI_API_KEY` with your API key value
+   - Redeploy your application
+
+2. **Verify API Key**: Make sure your API key is valid and has sufficient quota
+   - Test your API key at [OpenAI Platform](https://platform.openai.com)
+   - Check your usage and billing limits
+
+3. **Check API Endpoint**: If using a custom provider, verify the base URL
+   - Set `OPENAI_BASE_URL` environment variable if needed
+   - Default is `https://api.aimlapi.com/v1`
+
+4. **Review Logs**: Check Vercel function logs for detailed error information
+   - Go to your Vercel dashboard
+   - Click on Functions tab
+   - Check the logs for the specific error details
+
+### Common Issues
+- **Database Connection**: Ensure `DATABASE_URL` is correctly set
+- **Authentication**: Verify `NEXTAUTH_SECRET` and `NEXTAUTH_URL` are configured
+- **Build Failures**: Check that all dependencies are properly installed
 
 ## Step 3: Set Up Database Schema
 
