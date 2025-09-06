@@ -108,60 +108,69 @@ export async function POST(request: NextRequest) {
 ## 客戶背景信息
 ${filledFields}
 
-## 專業Landing Page結構要求
+## 專業Webinar Funnel結構要求
 
-### 1. Hero Section (首屏)
-- 強有力的主標題 (H1) - 解決痛點或承諾結果
-- 吸引人的副標題 - 具體說明價值
-- 緊急感CTA按鈕 - "立即註冊" 或 "搶先報名"
-- 倒計時或名額限制元素
-- 視覺衝擊力的背景設計
+### 1. Hero Section (首屏) - 高轉換設計
+- 強有力的主標題 (H1) - 解決痛點或承諾具體結果
+- 吸引人的副標題 - 具體說明價值和學習成果
+- 緊急感CTA按鈕 - "立即搶先報名" 或 "限時免費註冊"
+- 倒計時器或名額限制元素
+- 視覺衝擊力的背景設計和動畫效果
+- 信任標誌和社會證明元素
 
-### 2. 問題/痛點放大區
+### 2. 問題/痛點放大區 - 情感共鳴
 - 3-5個目標受眾面臨的具體問題
-- 每個問題配有相關圖標
-- 情感化的描述語言
+- 每個問題配有相關圖標和情感化描述
+- 使用"您是否也遇到這些困擾？"等共鳴語言
+- 問題描述要具體、真實、有代入感
 
-### 3. 解決方案預告區
-- "您將學到什麼" 區塊
-- 具體的學習成果承諾
-- 3-5個核心價值點
-- 視覺化的價值展示
+### 3. 解決方案預告區 - 價值展示
+- "您將學到什麼" 詳細區塊
+- 具體的學習成果承諾和技能提升
+- 3-5個核心價值點，每個都有具體說明
+- 視覺化的價值展示和學習路徑
+- 包含"學完後您將能夠..."的具體承諾
 
-### 4. 講師權威建立區
+### 4. 講師權威建立區 - 信任建立
 - 專業頭像/照片位置
-- 詳細的資歷和成就
-- 社會證明和認證
-- 成功案例數量
+- 詳細的資歷和成就展示
+- 社會證明和認證標誌
+- 成功案例數量和具體數據
+- 學員成功故事和見證
 
-### 5. 社會證明區
-- 真實感強的學員見證
-- 具體的成果數據
-- 學員照片和姓名
+### 5. 社會證明區 - 可信度提升
+- 真實感強的學員見證和成功案例
+- 具體的成果數據和轉變故事
+- 學員照片和姓名（或化名）
 - 評分和星級展示
+- 媒體報導或合作夥伴標誌
 
-### 6. Webinar詳情區
-- 具體的時間安排
-- 詳細的內容大綱
-- 參與方式說明
-- 價值對比展示
+### 6. Webinar詳情區 - 內容價值
+- 具體的時間安排和參與方式
+- 詳細的內容大綱和學習模組
+- 參與方式說明和技術要求
+- 價值對比展示（原價 vs 免費）
+- 額外獎勵和贈品說明
 
-### 7. 緊急感/稀缺性區
-- 名額限制提醒
-- 時間倒計時
-- 錯過機會的損失
-- 立即行動的緊迫感
+### 7. 緊急感/稀缺性區 - 行動驅動
+- 名額限制提醒和剩餘名額顯示
+- 動態時間倒計時器
+- 錯過機會的損失描述
+- 立即行動的緊迫感營造
+- 限時優惠和早鳥福利
 
-### 8. FAQ區
-- 常見疑慮解答
-- 手風琴式展開
-- 消除購買阻力
+### 8. FAQ區 - 疑慮消除
+- 常見疑慮和反對意見解答
+- 手風琴式展開設計
+- 消除購買阻力和信任障礙
+- 包含技術問題、時間安排、後續服務等
 
-### 9. 最終CTA區
-- 醒目的註冊表單
-- 多個CTA按鈕
-- 風險消除承諾
-- 額外獎勵說明
+### 9. 最終CTA區 - 轉換完成
+- 醒目的註冊表單設計
+- 多個CTA按鈕和行動呼籲
+- 風險消除承諾和保證
+- 額外獎勵和價值提升說明
+- 緊急感和稀缺性再次強調
 
 ## 轉換優化要求
 - 使用心理觸發點：稀缺性、社會證明、權威性、緊急感
@@ -185,37 +194,43 @@ ${filledFields}
 - 行動導向的語言
 
 ## 重要技術要求
-請創建一個完整的、可直接使用的landing page，必須包含：
+請創建一個完整的、可直接使用的webinar funnel landing page，必須包含：
 
 ### HTML結構要求：
 1. 完整的HTML5文檔結構（DOCTYPE html, html, head, body）
-2. 正確的meta標籤（charset, viewport, title, description）
+2. 正確的meta標籤（charset, viewport, title, description, og tags）
 3. 響應式設計的viewport設置
-4. 完整的頁面內容結構
+4. 完整的頁面內容結構，包含所有9個核心區塊
 5. 表單元素必須包含所有指定的聯絡信息欄位
 6. 所有圖片使用提供的照片URL或適當的佔位符
+7. 語義化HTML標籤和無障礙設計
 
 ### CSS樣式要求：
-1. 現代化的響應式設計
-2. 根據視覺偏好選擇合適的配色方案
+1. 現代化的響應式設計，Mobile-first approach
+2. 根據視覺偏好選擇合適的配色方案和字體
 3. 使用提供的品牌色彩（如果有的話）
-4. 移動端優先的響應式設計
-5. 流暢的動畫和過渡效果
-6. 專業的視覺層次和排版
+4. 流暢的動畫和過渡效果（hover, scroll, loading）
+5. 專業的視覺層次和排版設計
+6. 高轉換率的視覺元素（按鈕、表單、CTA）
+7. 漸變背景、陰影效果、圓角設計等現代元素
 
 ### JavaScript功能要求：
 1. 表單驗證和提交處理
-2. 模態框開關功能
-3. FAQ展開/收合功能
-4. 倒計時器功能
-5. 平滑滾動效果
+2. 模態框開關功能和動畫效果
+3. FAQ手風琴展開/收合功能
+4. 動態倒計時器功能
+5. 平滑滾動效果和錨點導航
 6. 表單提交到 /api/leads 端點
+7. 滾動動畫和元素顯示效果
+8. 表單字段驗證和錯誤提示
 
 ### 內容要求：
 - 只使用客戶提供的具體信息，不要添加虛假或示例內容
 - 如果某個欄位為空，則不要包含相關內容
 - 確保所有文字內容都是繁體中文
-- 使用專業但親切的語調
+- 使用專業但親切的語調，符合目標受眾
+- 包含具體的數字、數據和成果承諾
+- 使用轉換心理學的文案技巧
 
 請以JSON格式返回：
 {
@@ -245,8 +260,38 @@ ${filledFields}
         model: "gpt-4o",
         messages: [
           {
+            role: "system",
+            content: `你是一個專業的轉換優化專家和網頁設計師，專門創建高轉換率的webinar funnel landing page。你精通轉換心理學、用戶體驗設計，以及現代網頁開發技術。你的任務是創建完整的、專業級的webinar funnel頁面，具有強大的視覺吸引力和高轉換率。`
+          },
+          {
             role: "user",
-            content: `你是一個專業的網頁設計師和轉換優化專家，專門創建高轉換率的webinar登陸頁面。你擅長創建視覺吸引力強、轉換率高的專業landing page，包含完整的HTML結構、現代CSS樣式、互動JavaScript功能，以及符合轉換心理學的內容設計。請確保生成的頁面具有專業的外觀、響應式設計、完整的表單功能，並且完全符合客戶的業務需求。
+            content: `請根據客戶填寫的信息，創建一個高轉換的 webinar funnel landing page，目的是收集客戶leads, 利用客戶填寫的內容進行拓展，生成豐富的webinar funnel page：
+
+## 頁面要求
+請創建一個完整的 webinar funnel 頁面，包含以下元素：
+
+1. **響應式設計**: Mobile-first，支援各種設備
+2. **核心組件**: Hero區、價值主張、講師介紹、社會證明、FAQ、註冊表單
+3. **轉換心理學**: 稀缺性、緊急感、社會證明、價值對比
+4. **互動功能**: Modal表單、平滑滾動、手風琴效果
+
+## 內容要求
+- 使用繁體中文
+- 符合目標受眾的語調和痛點
+- 包含具體的學習成果承諾
+- 整合提供的社會證明和成功案例
+- 創建吸引人的標題和副標題
+- 列出webinar內容及價值
+
+## 技術輸出
+請提供：
+1. 完整的HTML頁面代碼
+2. CSS樣式文件（包含指定的視覺風格）
+3. JavaScript互動功能
+4. 註冊表單
+5. 成功頁面設計
+
+請確保頁面具有高轉換率，視覺吸引力強，並完全符合客戶的業務需求。
 
 ${prompt}`
           }
@@ -1750,7 +1795,7 @@ body {
       }
     } catch (error) {
       console.error('Failed to parse AI response as JSON:', error)
-      // If AI didn't return valid JSON, create a complete HTML structure
+      // If AI didn't return valid JSON, create a comprehensive HTML structure
       const completeHTML = `<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -1758,37 +1803,232 @@ body {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${cleanData.businessInfo || 'Webinar'} - 專業Webinar</title>
     <meta name="description" content="${cleanData.webinarContent || '專業Webinar課程'}">
+    <meta property="og:title" content="${cleanData.businessInfo || 'Webinar'} - 專業Webinar">
+    <meta property="og:description" content="${cleanData.webinarContent || '專業Webinar課程'}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="webinar-landing-page">
+        <!-- Hero Section -->
         <header class="hero-section">
             <div class="container">
                 <div class="hero-content">
-                    <h1 class="hero-title">${cleanData.businessInfo || '專業Webinar'}</h1>
-                    <p class="hero-subtitle">${cleanData.webinarContent || '立即註冊參加專業webinar'}</p>
+                    <div class="urgency-banner">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>限時免費！僅剩最後 15 個名額</span>
+                    </div>
+                    <h1 class="hero-title">掌握${cleanData.businessInfo || '專業技能'}的完整秘訣</h1>
+                    <p class="hero-subtitle">${cleanData.webinarContent || '立即註冊參加專業webinar，掌握核心技能'}</p>
+                    <div class="hero-benefits">
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>立即獲得實用技能</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>專業講師一對一指導</span>
+                        </div>
+                        <div class="benefit-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>終身學習資源</span>
+                        </div>
+                    </div>
                     <div class="hero-cta">
                         <button class="cta-button primary" onclick="openModal()">
                             <i class="fas fa-rocket"></i>
                             立即搶先報名
                         </button>
+                        <p class="cta-subtitle">100% 免費 • 無需信用卡 • 立即開始</p>
                     </div>
                 </div>
             </div>
         </header>
+
+        <!-- Problem Section -->
+        <section class="problem-section">
+            <div class="container">
+                <h2>您是否遇到這些問題？</h2>
+                <div class="problems-grid">
+                    <div class="problem-card">
+                        <div class="problem-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <h3>缺乏系統性學習</h3>
+                        <p>不知道從哪裡開始，學習路徑混亂</p>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <h3>實戰經驗不足</h3>
+                        <p>理論知識豐富，但實際應用困難</p>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <h3>時間成本太高</h3>
+                        <p>自學需要大量時間，效率低下</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solution Section -->
+        <section class="solution-section">
+            <div class="container">
+                <h2>我們為您提供完整解決方案</h2>
+                <div class="solution-content">
+                    <div class="solution-left">
+                        <h3>您將學到什麼？</h3>
+                        <ul class="learning-points">
+                            <li><i class="fas fa-star"></i> ${cleanData.businessInfo || '專業技能'}的核心原理</li>
+                            <li><i class="fas fa-star"></i> 實戰技巧和最佳實踐</li>
+                            <li><i class="fas fa-star"></i> 常見問題解決方案</li>
+                            <li><i class="fas fa-star"></i> 進階應用技巧</li>
+                        </ul>
+                    </div>
+                    <div class="solution-right">
+                        <div class="value-box">
+                            <div class="value-amount">價值 $997</div>
+                            <div class="current-price">今日免費</div>
+                            <div class="savings">節省 100%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instructor Section -->
+        <section class="instructor-section">
+            <div class="container">
+                <h2>專業講師介紹</h2>
+                <div class="instructor-card">
+                    <div class="instructor-avatar">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="instructor-info">
+                        <h3>資深${cleanData.businessInfo || '專業'}專家</h3>
+                        <p class="instructor-credentials">${cleanData.instructorCreds || '擁有豐富的實戰經驗和專業知識'}</p>
+                        <div class="instructor-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">1000+</span>
+                                <span class="stat-label">學員</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">5+</span>
+                                <span class="stat-label">年經驗</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">98%</span>
+                                <span class="stat-label">滿意度</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Urgency Section -->
+        <section class="urgency-section">
+            <div class="container">
+                <div class="urgency-content">
+                    <h2>時間緊迫！名額有限</h2>
+                    <div class="countdown-timer" id="countdown">
+                        <div class="countdown-item">
+                            <span class="countdown-number" id="hours">24</span>
+                            <span class="countdown-label">小時</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number" id="minutes">00</span>
+                            <span class="countdown-label">分鐘</span>
+                        </div>
+                        <div class="countdown-item">
+                            <span class="countdown-number" id="seconds">00</span>
+                            <span class="countdown-label">秒</span>
+                        </div>
+                    </div>
+                    <p class="urgency-text">錯過這次機會，您將需要支付 $997 才能獲得相同內容</p>
+                    <button class="cta-button urgency" onclick="openModal()">
+                        <i class="fas fa-clock"></i>
+                        立即搶先報名
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="container">
+                <h2>常見問題</h2>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <h3 onclick="toggleFAQ(this)">
+                            <i class="fas fa-question-circle"></i>
+                            這個webinar適合什麼程度的人參加？
+                            <i class="fas fa-chevron-down"></i>
+                        </h3>
+                        <div class="faq-content">
+                            <p>適合所有對${cleanData.businessInfo || '專業技能'}感興趣的${cleanData.targetAudience || '學習者'}，從初學者到進階者都能有所收穫。我們會從基礎開始，逐步深入。</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <h3 onclick="toggleFAQ(this)">
+                            <i class="fas fa-question-circle"></i>
+                            webinar會錄製嗎？可以重複觀看嗎？
+                            <i class="fas fa-chevron-down"></i>
+                        </h3>
+                        <div class="faq-content">
+                            <p>是的，我們會提供錄製版本給註冊的學員，您可以隨時回看學習，完全免費。</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <h3 onclick="toggleFAQ(this)">
+                            <i class="fas fa-question-circle"></i>
+                            真的完全免費嗎？需要信用卡嗎？
+                            <i class="fas fa-chevron-down"></i>
+                        </h3>
+                        <div class="faq-content">
+                            <p>完全免費！不需要信用卡，只需要填寫基本信息即可參加。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final CTA Section -->
+        <section class="final-cta-section">
+            <div class="container">
+                <div class="final-cta-content">
+                    <h2>立即開始您的${cleanData.businessInfo || '專業技能'}學習之旅</h2>
+                    <p>加入 500+ 位學員的行列，立即獲得專業指導</p>
+                    <button class="cta-button final" onclick="openModal()">
+                        <i class="fas fa-graduation-cap"></i>
+                        立即免費報名
+                    </button>
+                    <p class="guarantee">30天滿意保證 • 隨時可取消</p>
+                </div>
+            </div>
+        </section>
         
+        <!-- Registration Form Modal -->
         <div id="registrationModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closeModal()">&times;</span>
                 <div class="modal-header">
                     <h2>立即免費報名</h2>
+                    <p>填寫以下信息，立即開始學習</p>
                 </div>
                 <form class="registration-form" onsubmit="handleRegistration(event)">
                     ${cleanData.contactFields.includes('姓名') ? '<div class="form-group"><label for="name">姓名 *</label><input type="text" id="name" name="name" required></div>' : ''}
                     ${cleanData.contactFields.includes('Email') ? '<div class="form-group"><label for="email">Email *</label><input type="email" id="email" name="email" required></div>' : ''}
                     ${cleanData.contactFields.includes('電話') ? '<div class="form-group"><label for="phone">電話</label><input type="tel" id="phone" name="phone"></div>' : ''}
                     ${cleanData.contactFields.includes('Instagram帳號') ? '<div class="form-group"><label for="instagram">Instagram帳號</label><input type="text" id="instagram" name="instagram"></div>' : ''}
-                    <button type="submit" class="submit-btn">確認報名</button>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        確認報名
+                    </button>
+                    <p class="form-note">* 我們承諾保護您的隱私，不會向第三方分享您的信息</p>
                 </form>
             </div>
         </div>
