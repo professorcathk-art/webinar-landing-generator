@@ -510,7 +510,7 @@ ${filledFields}
       templateName = 'professional-funnel-template'
     }
     
-    const templateDir = path.join(process.cwd(), 'reference', `${templateName}.zip`)
+    const templateDir = path.join(process.cwd(), 'reference', templateName)
     
     // Read template files
     const templateHTML = fs.readFileSync(path.join(templateDir, 'index.html'), 'utf8')
