@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Copy, Edit, Eye, Trash2, Plus, ExternalLink, User, Settings } from 'lucide-react'
+import { Copy, Edit, Eye, Trash2, Plus, ExternalLink, User, Settings, RefreshCw } from 'lucide-react'
 
 interface LandingPage {
   id: string
@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [regeneratingPages, setRegeneratingPages] = useState<Set<string>>(new Set())
   const router = useRouter()
 
   useEffect(() => {
@@ -115,6 +116,49 @@ export default function DashboardPage() {
     } catch (err) {
       console.error('Error deleting page:', err)
       alert('Failed to delete page. Please try again.')
+    }
+  }
+
+  const regeneratePage = async (pageId: string) => {
+    if (!confirm('Are you sure you want to regenerate this page? This will create a new version using the same form data.')) {
+      return
+    }
+
+    try {
+      // Add to regenerating set
+      setRegeneratingPages(prev => new Set(prev).add(pageId))
+
+      const response = await fetch('/api/regenerate-page', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pageId })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to regenerate page')
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to regenerate page')
+      }
+      
+      // Refresh the page data
+      await fetchLandingPages()
+      alert('Page regenerated successfully!')
+    } catch (err) {
+      console.error('Error regenerating page:', err)
+      alert('Failed to regenerate page. Please try again.')
+    } finally {
+      // Remove from regenerating set
+      setRegeneratingPages(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(pageId)
+        return newSet
+      })
     }
   }
 
@@ -290,6 +334,14 @@ export default function DashboardPage() {
                       >
                         <Eye className="h-4 w-4" />
                         <span>Preview</span>
+                      </button>
+                      <button
+                        onClick={() => regeneratePage(page.id)}
+                        disabled={regeneratingPages.has(page.id)}
+                        className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <RefreshCw className={`h-4 w-4 ${regeneratingPages.has(page.id) ? 'animate-spin' : ''}`} />
+                        <span>{regeneratingPages.has(page.id) ? 'Regenerating...' : 'Regenerate'}</span>
                       </button>
                     </div>
                     

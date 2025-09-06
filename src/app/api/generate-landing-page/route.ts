@@ -1795,7 +1795,7 @@ body {
     // Parse AI response
     let parsedResponse
     try {
-      // Function to extract JSON from AI response
+      // Function to extract and fix JSON from AI response
       const extractJSON = (response: string) => {
         let cleanResponse = response.trim()
         
@@ -1819,13 +1819,48 @@ body {
           }
         }
         
+        // Fix common JSON issues
+        cleanResponse = cleanResponse
+          // Fix unterminated strings by adding quotes
+          .replace(/"([^"]*?)(?=\s*[,}\]])/g, '"$1"')
+          // Fix unescaped quotes in strings
+          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, '"$1\\"$2\\"$3"')
+          // Fix trailing commas
+          .replace(/,(\s*[}\]])/g, '$1')
+          // Fix missing quotes around keys
+          .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
+        
         return cleanResponse
       }
       
       const cleanResponse = extractJSON(aiResponse)
       console.log('Cleaned AI response for JSON parsing:', cleanResponse.substring(0, 200) + '...')
       
-      parsedResponse = JSON.parse(cleanResponse)
+      // Try to parse JSON with multiple attempts
+      try {
+        parsedResponse = JSON.parse(cleanResponse)
+      } catch (parseError) {
+        console.error('First JSON parse attempt failed:', parseError)
+        
+        // Try to fix common JSON issues and parse again
+        let fixedResponse = cleanResponse
+          // Fix unterminated strings by finding the end of the JSON object
+          .replace(/"([^"]*?)(?=\s*[,}\]])/g, (match, content) => {
+            // If the string is unterminated, try to find where it should end
+            const nextChar = cleanResponse[cleanResponse.indexOf(match) + match.length]
+            if (nextChar && !['"', ',', '}', ']'].includes(nextChar)) {
+              return match + '"'
+            }
+            return match
+          })
+          // Fix escaped quotes that might be causing issues
+          .replace(/\\"/g, '\\"')
+          // Remove any trailing text after the JSON object
+          .replace(/}([^}]*)$/, '}')
+        
+        console.log('Attempting to parse fixed JSON:', fixedResponse.substring(0, 200) + '...')
+        parsedResponse = JSON.parse(fixedResponse)
+      }
       
       // Validate that we have the required fields
       if (!parsedResponse.html || !parsedResponse.css) {

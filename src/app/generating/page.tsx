@@ -6,9 +6,11 @@ import { useSearchParams, useRouter } from 'next/navigation'
 function GeneratingContent() {
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState('')
+  const [isAutoSubmitting, setIsAutoSubmitting] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
   const pageId = searchParams.get('pageId')
+  const autoSubmit = searchParams.get('autoSubmit') === 'true'
 
   const steps = [
     'Analyzing your requirements...',
@@ -18,6 +20,64 @@ function GeneratingContent() {
     'Optimizing for conversion...',
     'Finalizing your landing page...'
   ]
+
+  // Auto-submit form data if needed
+  useEffect(() => {
+    if (autoSubmit && !pageId && !isAutoSubmitting) {
+      setIsAutoSubmitting(true)
+      
+      const autoSubmitForm = async () => {
+        try {
+          const pendingFormData = sessionStorage.getItem('pendingFormData')
+          const pendingFiles = sessionStorage.getItem('pendingFiles')
+          
+          if (pendingFormData) {
+            const formData = JSON.parse(pendingFormData)
+            
+            // Create FormData for submission
+            const submitData = new FormData()
+            Object.keys(formData).forEach(key => {
+              if (key !== 'photos' && formData[key]) {
+                submitData.append(key, JSON.stringify(formData[key]))
+              }
+            })
+            
+            // Add files if any
+            if (pendingFiles) {
+              const files = JSON.parse(pendingFiles)
+              // Note: We can't restore actual File objects, but we can proceed without them
+            }
+            
+            const response = await fetch('/api/generate-landing-page', {
+              method: 'POST',
+              body: submitData,
+            })
+            
+            if (response.ok) {
+              const result = await response.json()
+              if (result.success) {
+                // Clear the stored data
+                sessionStorage.removeItem('pendingFormData')
+                sessionStorage.removeItem('pendingFiles')
+                
+                // Redirect to generating page with the new page ID
+                router.push(`/generating?pageId=${result.pageId}`)
+                return
+              }
+            }
+          }
+          
+          // If auto-submit fails, redirect to create page
+          router.push('/create')
+        } catch (error) {
+          console.error('Auto-submit error:', error)
+          router.push('/create')
+        }
+      }
+      
+      autoSubmitForm()
+    }
+  }, [autoSubmit, pageId, isAutoSubmitting, router])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,8 +122,15 @@ function GeneratingContent() {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Creating Your Landing Page</h1>
-            <p className="text-gray-600">Please wait while we generate your perfect webinar landing page...</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+              {autoSubmit && !pageId ? 'Submitting Your Form' : 'Creating Your Landing Page'}
+            </h1>
+            <p className="text-gray-600">
+              {autoSubmit && !pageId 
+                ? 'Please wait while we submit your form and generate your landing page...'
+                : 'Please wait while we generate your perfect webinar landing page...'
+              }
+            </p>
           </div>
 
           <div className="mb-6">

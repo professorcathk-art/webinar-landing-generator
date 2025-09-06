@@ -33,8 +33,14 @@ export default function LoginPage() {
         const returnTo = searchParams.get('returnTo')
         
         if (returnTo === 'create') {
-          // Don't clear the pending data here - let the form component handle it
-          router.push('/create')
+          // Check if there's pending form data
+          const pendingFormData = sessionStorage.getItem('pendingFormData')
+          if (pendingFormData) {
+            // Redirect to generating page to show progress
+            router.push('/generating?autoSubmit=true')
+          } else {
+            router.push('/create')
+          }
         } else {
           router.push('/dashboard')
         }
