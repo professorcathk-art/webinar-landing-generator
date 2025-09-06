@@ -23,6 +23,29 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user from token
+    const token = request.cookies.get('auth-token')?.value
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    // Verify JWT token and get user ID
+    const { verify } = await import('jsonwebtoken')
+    const decoded = verify(token, process.env.NEXTAUTH_SECRET || 'fallback-secret') as any
+    
+    if (!decoded || !decoded.userId) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid authentication' },
+        { status: 401 }
+      )
+    }
+
+    const userId = decoded.userId
+
     const formData = await request.formData()
     
     // Extract form data
@@ -577,7 +600,7 @@ ${filledFields}
         upsellProducts: cleanData.upsellProducts,
         specialRequirements: cleanData.specialRequirements,
         photos: cleanData.photos,
-        userId: 'system' // TODO: Get actual user ID from session
+        userId: userId // Using the authenticated user ID from JWT token
       }
     })
 
