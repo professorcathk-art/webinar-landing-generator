@@ -606,6 +606,7 @@ ${filledFields}
 
     return NextResponse.json({
       success: true,
+      pageId: landingPage.id,
       landingPage: {
         id: landingPage.id,
         title: landingPage.title,
