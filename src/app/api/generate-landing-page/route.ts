@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
     if (visualStyle === '專業商務') {
       templateName = 'professional-funnel-template'
     } else if (visualStyle === '溫暖生活化') {
-      templateName = 'professional-funnel-template' // Use professional for warm style
+      templateName = 'warm-tone-funnel' // Use warm-tone-funnel for warm style
     } else if (visualStyle === '創意活潑') {
       templateName = 'cyber-funnel-template' // Use cyber for creative style
     } else if (visualStyle === '吸血鬼') {
@@ -289,6 +289,48 @@ ${filledFields}
 - 使用繁體中文
 - 內容要具體、有說服力，具有吸血鬼風格和禁忌感
 - 包含緊急感和社會證明，使用禁忌、財富密碼等元素
+- 只使用提供的客戶信息，不要添加虛假內容
+- 確保JSON格式正確
+- 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
+- 不要生成完整的網頁，只生成文案內容
+- 如果客戶提供了Upsell轉換目標，在感謝頁面訊息中提及相關產品或服務`
+      } else if (templateName === 'warm-tone-funnel') {
+        // Warm tone template prompt
+        return `為溫暖生活化webinar landing page生成高轉換率的文案內容（僅文字，不包含HTML）：
+
+參考高轉換頁面結構：
+- Hero區使用溫暖親和標題和信任元素 (如：用心陪伴、溫暖支持、專業指導)
+- 問題區突出生活痛點，解決方案區展示溫暖支持和陪伴價值
+- 講師介紹包含溫暖資歷、生活經驗和親和力
+- 使用溫暖感CTA按鈕 (如：開始溫暖之旅、獲得專業陪伴、開啟美好生活)
+- 階梯式價值展示：溫暖支持 → 專業陪伴 → 生活改善 → 社會證明 → CTA
+- 信任元素：溫暖見證、生活改善案例、親和力展示
+
+客戶信息：
+${filledFields}
+
+請生成以下文案內容，返回JSON格式：
+{
+  "pageTitle": "頁面標題",
+  "brandName": "品牌名稱",
+  "heroTitle": "主要標題 - 溫暖親和的承諾",
+  "heroSubtitle": "副標題 - 詳細說明溫暖價值主張",
+  "valuePoint1": "價值點1 - 溫暖支持",
+  "valuePoint2": "價值點2 - 專業陪伴",
+  "valuePoint3": "價值點3 - 生活改善",
+  "testimonial1": "溫暖見證1",
+  "testimonial2": "溫暖見證2",
+  "formTitle": "表單標題 - 溫暖邀請",
+  "formSubtitle": "表單副標題 - 說明將獲得什麼溫暖支持",
+  "ctaButton": "CTA按鈕文字",
+  "thankYouTitle": "感謝標題",
+  "thankYouMessage": "感謝訊息和下一步指引"
+}
+
+要求：
+- 使用繁體中文
+- 內容要具體、有說服力，具有溫暖親和感
+- 包含信任感和社會證明
 - 只使用提供的客戶信息，不要添加虛假內容
 - 確保JSON格式正確
 - 重要：只返回JSON文字內容，不要包含任何HTML、CSS或JavaScript代碼
@@ -472,6 +514,24 @@ ${filledFields}
           '搶奪財富密碼': contentData.formTitle || '搶奪財富密碼',
           '[感謝標題]': contentData.thankYouTitle || '恭喜！你已獲得財富密碼',
           '[感謝訊息和下一步指引]': contentData.thankYouMessage || '機密資料已發送到你的郵箱，立即查收開始你的財富之路'
+        }
+      } else if (templateName === 'warm-tone-funnel') {
+        // Warm tone template replacements
+        replacements = {
+          '頁面標題': contentData.pageTitle || 'Webinar Landing Page',
+          '[您的品牌名稱]': contentData.brandName || '您的品牌',
+          '[主要標題 - 溫暖親和的承諾]': contentData.heroTitle || '用心陪伴您的每一步成長',
+          '[副標題 - 詳細說明溫暖價值主張]': contentData.heroSubtitle || '專業溫暖的指導，讓您的生活更美好',
+          '[價值點1 - 溫暖支持]': contentData.valuePoint1 || '溫暖支持',
+          '[價值點2 - 專業陪伴]': contentData.valuePoint2 || '專業陪伴',
+          '[價值點3 - 生活改善]': contentData.valuePoint3 || '生活改善',
+          '[溫暖見證1]': contentData.testimonial1 || '溫暖見證1',
+          '[溫暖見證2]': contentData.testimonial2 || '溫暖見證2',
+          '[表單標題 - 溫暖邀請]': contentData.formTitle || '開始您的溫暖之旅',
+          '[表單副標題 - 說明將獲得什麼溫暖支持]': contentData.formSubtitle || '我們會用最溫暖的方式與您聯繫',
+          '[CTA按鈕文字]': contentData.ctaButton || '開始溫暖之旅',
+          '[感謝標題]': contentData.thankYouTitle || '感謝您的信任',
+          '[感謝訊息和下一步指引]': contentData.thankYouMessage || '我們將用最溫暖的方式與您聯繫，陪伴您的每一步成長'
         }
       } else {
         // Professional template replacements
