@@ -1677,8 +1677,8 @@ body {
     // Parse AI response
     let parsedResponse
     try {
-      // Function to extract and fix JSON from AI response
-      const extractJSON = (response: string) => {
+      // Function to extract and reconstruct JSON from AI response
+      const extractAndReconstructJSON = (response: string) => {
         let cleanResponse = response.trim()
         
         // Remove any markdown code blocks
@@ -1692,113 +1692,78 @@ body {
           cleanResponse = cleanResponse.substring(jsonStart, jsonEnd)
         }
         
-        // Try to find JSON array if object not found
-        if (!cleanResponse.startsWith('{')) {
-          const arrayStart = cleanResponse.indexOf('[')
-          const arrayEnd = cleanResponse.lastIndexOf(']') + 1
-          if (arrayStart !== -1 && arrayEnd > arrayStart) {
-            cleanResponse = cleanResponse.substring(arrayStart, arrayEnd)
+        // Extract HTML content using a more robust approach
+        const htmlMatch = cleanResponse.match(/"html"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
+        const cssMatch = cleanResponse.match(/"css"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
+        const jsMatch = cleanResponse.match(/"js"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
+        const titleMatch = cleanResponse.match(/"title"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
+        const metaDescriptionMatch = cleanResponse.match(/"metaDescription"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)
+        
+        if (htmlMatch || cssMatch || jsMatch) {
+          // Reconstruct JSON with properly escaped content
+          const result: any = {}
+          
+          if (htmlMatch) {
+            // Clean and properly escape HTML content
+            let htmlContent = htmlMatch[1]
+              .replace(/\\n/g, '\n')
+              .replace(/\\"/g, '"')
+              .replace(/\\t/g, '\t')
+            
+            // Properly escape quotes in HTML content
+            htmlContent = htmlContent.replace(/"/g, '\\"')
+            result.html = htmlContent
           }
+          
+          if (cssMatch) {
+            let cssContent = cssMatch[1]
+              .replace(/\\n/g, '\n')
+              .replace(/\\"/g, '"')
+              .replace(/\\t/g, '\t')
+            cssContent = cssContent.replace(/"/g, '\\"')
+            result.css = cssContent
+          }
+          
+          if (jsMatch) {
+            let jsContent = jsMatch[1]
+              .replace(/\\n/g, '\n')
+              .replace(/\\"/g, '"')
+              .replace(/\\t/g, '\t')
+            jsContent = jsContent.replace(/"/g, '\\"')
+            result.js = jsContent
+          }
+          
+          if (titleMatch) {
+            let titleContent = titleMatch[1]
+              .replace(/\\"/g, '"')
+            titleContent = titleContent.replace(/"/g, '\\"')
+            result.title = titleContent
+          }
+          
+          if (metaDescriptionMatch) {
+            let metaContent = metaDescriptionMatch[1]
+              .replace(/\\"/g, '"')
+            metaContent = metaContent.replace(/"/g, '\\"')
+            result.metaDescription = metaContent
+          }
+          
+          return JSON.stringify(result)
         }
         
-        // More robust JSON fixing
-        cleanResponse = cleanResponse
-          // Fix the most common issue: unescaped quotes in HTML attributes
-          .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
-          // Fix content attribute specifically
-          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
-          // Fix any remaining unescaped quotes in HTML content
-          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
-            // Only escape if it looks like HTML attributes
-            if (p2.includes('=') || p2.includes(' ')) {
-              return `"${p1}\\"${p2}\\"${p3}"`
-            }
-            return match
-          })
-          // Fix unterminated strings by adding quotes
-          .replace(/"([^"]*?)(?=\s*[,}\]])/g, '"$1"')
-          // Fix trailing commas
-          .replace(/,(\s*[}\]])/g, '$1')
-          // Fix missing quotes around keys
-          .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":')
-          // Additional fix for malformed HTML in JSON strings
-          .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
-        
+        // Fallback to original approach if extraction fails
         return cleanResponse
       }
       
-      const cleanResponse = extractJSON(aiResponse)
+      const cleanResponse = extractAndReconstructJSON(aiResponse)
       console.log('Cleaned AI response for JSON parsing:', cleanResponse.substring(0, 200) + '...')
       
       // Try to parse JSON with multiple attempts
       try {
         parsedResponse = JSON.parse(cleanResponse)
       } catch (parseError) {
-        console.error('First JSON parse attempt failed:', parseError)
-        
-        // Try to fix common JSON issues and parse again
-        let fixedResponse = cleanResponse
-          // Fix the most critical issue: malformed HTML attributes in JSON
-          .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
-          // Fix content attribute specifically (most common issue)
-          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
-          // Fix viewport meta tag specifically
-          .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
-          // Fix any remaining unescaped quotes in HTML content
-          .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
-            // Only escape if it looks like HTML attributes
-            if (p2.includes('=') || p2.includes(' ')) {
-              return `"${p1}\\"${p2}\\"${p3}"`
-            }
-            return match
-          })
-          // Fix unterminated strings by finding the end of the JSON object
-          .replace(/"([^"]*?)(?=\s*[,}\]])/g, (match, content) => {
-            // If the string is unterminated, try to find where it should end
-            const nextChar = cleanResponse[cleanResponse.indexOf(match) + match.length]
-            if (nextChar && !['"', ',', '}', ']'].includes(nextChar)) {
-              return match + '"'
-            }
-            return match
-          })
-          // Fix escaped quotes that might be causing issues
-          .replace(/\\"/g, '\\"')
-          // Remove any trailing text after the JSON object
-          .replace(/}([^}]*)$/, '}')
-        
-        console.log('Attempting to parse fixed JSON:', fixedResponse.substring(0, 200) + '...')
-        
-        try {
-          parsedResponse = JSON.parse(fixedResponse)
-        } catch (secondParseError) {
-          console.error('Second JSON parse attempt failed:', secondParseError)
-          
-          // Last resort: try to manually repair the JSON by finding and fixing the specific error
-          let repairedResponse = fixedResponse
-          
-          // Fix the specific pattern we're seeing: content="width=device-width", initial-scale=1.0"
-          repairedResponse = repairedResponse
-            // Fix viewport meta tag specifically
-            .replace(/content="([^"]*)"([^"]*)"([^"]*)"/g, 'content="\\"$1\\"$2\\"$3\\""')
-            // Fix any remaining unescaped quotes in HTML attributes
-            .replace(/([a-zA-Z-]+)="([^"]*)"([^"]*)"([^"]*)"/g, '$1="\\"$2\\"$3\\"$4\\""')
-            // Fix malformed HTML attributes in JSON strings
-            .replace(/"([^"]*)\s+([a-zA-Z-]+)="([^"]*)"([^"]*)"/g, '"$1 $2=\\"$3\\"$4"')
-            // Fix any remaining malformed quotes
-            .replace(/"([^"]*)"([^"]*)"([^"]*)"/g, (match, p1, p2, p3) => {
-              // Only escape if it looks like HTML attributes
-              if (p2.includes('=') || p2.includes(' ')) {
-                return `"${p1}\\"${p2}\\"${p3}"`
-              }
-              return match
-            })
-            // Additional fix for common HTML patterns
-            .replace(/charset="([^"]*)"([^"]*)"/g, 'charset="\\"$1\\"$2\\""')
-            .replace(/lang="([^"]*)"([^"]*)"/g, 'lang="\\"$1\\"$2\\""')
-          
-          console.log('Attempting to parse repaired JSON:', repairedResponse.substring(0, 200) + '...')
-          parsedResponse = JSON.parse(repairedResponse)
-        }
+        console.error('JSON parse failed, using fallback template:', parseError)
+        // If the new extraction method fails, we'll use the fallback template
+        throw new Error('Failed to parse AI response')
       }
       
       // Validate that we have the required fields
