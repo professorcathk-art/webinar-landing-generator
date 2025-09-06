@@ -27,6 +27,91 @@ interface FormData {
 const contactFieldOptions = ['姓名', 'Instagram帳號', '電話', 'Email']
 const visualStyleOptions = ['現代簡約', '溫暖生活化', '專業商務', '創意活潑', '其他']
 
+// Color Palette Preview Component
+function ColorPalettePreview({ colors }: { colors?: string }) {
+  if (!colors || colors.trim() === '') {
+    return (
+      <div className="text-sm text-gray-500">
+        輸入顏色代碼後將顯示預覽
+      </div>
+    )
+  }
+
+  // Parse colors from the input string
+  const parseColors = (colorString: string): string[] => {
+    // Split by comma and clean up each color
+    return colorString
+      .split(',')
+      .map(color => color.trim())
+      .filter(color => {
+        // Basic validation for hex colors
+        return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color) || 
+               /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/.test(color) ||
+               /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)$/.test(color)
+      })
+  }
+
+  const validColors = parseColors(colors)
+
+  if (validColors.length === 0) {
+    return (
+      <div className="text-sm text-red-500">
+        請輸入有效的顏色代碼 (例如: #3B82F6, #10B981)
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="text-sm text-gray-600">顏色預覽:</div>
+      <div className="flex flex-wrap gap-2">
+        {validColors.map((color, index) => (
+          <div key={index} className="flex items-center space-x-2">
+            <div
+              className="w-8 h-8 rounded border border-gray-300 shadow-sm"
+              style={{ backgroundColor: color }}
+              title={color}
+            />
+            <span className="text-xs text-gray-600 font-mono">{color}</span>
+          </div>
+        ))}
+      </div>
+      <div className="text-xs text-gray-500">
+        共 {validColors.length} 個有效顏色
+      </div>
+      
+      {/* Popular color combinations */}
+      <div className="mt-4">
+        <div className="text-xs text-gray-500 mb-2">熱門配色組合:</div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { name: '藍色系', colors: '#3B82F6, #1E40AF, #60A5FA' },
+            { name: '綠色系', colors: '#10B981, #059669, #34D399' },
+            { name: '紫色系', colors: '#8B5CF6, #7C3AED, #A78BFA' },
+            { name: '橙色系', colors: '#F59E0B, #D97706, #FBBF24' },
+            { name: '紅色系', colors: '#EF4444, #DC2626, #F87171' }
+          ].map((combo, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => {
+                const input = document.querySelector('input[name="brandColors"]') as HTMLInputElement
+                if (input) {
+                  input.value = combo.colors
+                  input.dispatchEvent(new Event('input', { bubbles: true }))
+                }
+              }}
+              className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded border border-gray-300 transition-colors"
+            >
+              {combo.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function WebinarForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -499,12 +584,15 @@ export default function WebinarForm() {
                 name="brandColors"
                 control={control}
                 render={({ field }) => (
-                  <input
-                    {...field}
-                    type="text"
-                    placeholder="例如：#3B82F6, #10B981"
-                    className="form-input"
-                  />
+                  <div className="space-y-3">
+                    <input
+                      {...field}
+                      type="text"
+                      placeholder="例如：#3B82F6, #10B981, #F59E0B (用逗號分隔多個顏色)"
+                      className="form-input"
+                    />
+                    <ColorPalettePreview colors={field.value} />
+                  </div>
                 )}
               />
             </div>
