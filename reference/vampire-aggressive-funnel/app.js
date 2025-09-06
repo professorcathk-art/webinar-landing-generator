@@ -456,7 +456,7 @@ function handleFormSubmission() {
     
     // Add dramatic pause for psychological effect
     setTimeout(() => {
-        console.log('🔥 Submitting to the vampire vault...');
+        console.log('🔥 Submitting to the vampire vault... - Template v1.1');
         
         submitFormData(formData)
             .then(response => {
