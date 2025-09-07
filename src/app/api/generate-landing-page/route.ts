@@ -838,6 +838,9 @@ ${filledFields}
     // Debug: Log template directory and check if files exist
     console.log('Template directory:', templateDir)
     console.log('Template name:', templateName)
+    console.log('Current working directory:', process.cwd())
+    console.log('Reference directory exists:', fs.existsSync(path.join(process.cwd(), 'reference')))
+    console.log('Files in reference directory:', fs.existsSync(path.join(process.cwd(), 'reference')) ? fs.readdirSync(path.join(process.cwd(), 'reference')) : 'Reference directory not found')
     
     // Check if template directory exists
     if (!fs.existsSync(templateDir)) {
