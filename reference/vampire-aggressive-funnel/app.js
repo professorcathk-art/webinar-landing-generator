@@ -48,9 +48,6 @@ function initializeElements() {
 function initializeCountdownTimers() {
     console.log('🕒 Starting countdown timers...');
     
-    // Start main countdown
-    startCountdown();
-    
     // Update remaining spots periodically
     setInterval(() => {
         simulateSpotsDecrease();
