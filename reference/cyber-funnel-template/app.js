@@ -79,19 +79,19 @@ class CyberFunnelApp {
     
     handleFormSubmit(e) {
         e.preventDefault();
+        console.log('Form submission intercepted by JavaScript');
         
         // Get form data
         const formData = new FormData(this.form);
         const data = {
             name: formData.get('name')?.trim() || '',
             email: formData.get('email')?.trim() || '',
-            company: formData.get('company')?.trim() || '',
-            role: formData.get('role') || ''
+            phone: formData.get('phone')?.trim() || ''
         };
         
         // Validate required fields
-        if (!data.name || !data.email) {
-            this.showNotification('請填寫必填欄位', 'error');
+        if (!data.name || !data.email || !data.phone) {
+            this.showNotification('請填寫所有必填欄位', 'error');
             return;
         }
         
@@ -693,6 +693,10 @@ class CyberFunnelApp {
         // Get page ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const pageId = urlParams.get('id') || window.location.pathname.split('/').pop();
+        
+        console.log('Page ID extracted:', pageId);
+        console.log('Current URL:', window.location.href);
+        console.log('Form data to submit:', data);
         
         if (!pageId) {
             throw new Error('無法識別頁面ID');
