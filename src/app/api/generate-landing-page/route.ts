@@ -770,17 +770,6 @@ ${filledFields}
           '📥 下載機密資料': contentData.downloadButtonText || '📥 下載機密資料',
           '⚠️ 記住：這些機密極其強大，請謹慎使用！': contentData.successWarning || '⚠️ 記住：這些機密極其強大，請謹慎使用！',
           '開始我的財富之路 →': contentData.startJourneyButton || '開始我的財富之路 →',
-          
-          // Legacy mappings for backward compatibility
-          '價值 $50,000 的機密資料': contentData.valuePoint1 || '價值 $50,000 的機密資料',
-          '限時48小時免費': contentData.urgencyText || '限時48小時免費',
-          '僅限前100名，不設重播': contentData.urgencyWarning || '僅限前100名，不設重播',
-          '富豪絕不外流的財富密碼': contentData.valuePoint3 || '富豪絕不外流的財富密碼',
-          '首次公開！價值$50,000的頂級機密，48小時後永遠封存': contentData.valuePoint1Description || '首次公開！價值$50,000的頂級機密，48小時後永遠封存',
-          '跟著血狼老師3個月，我從負債50萬變成資產千萬！財富密碼太可怕了，我老婆都不敢相信...': contentData.testimonial1 || '跟著血狼老師3個月，我從負債50萬變成資產千萬！財富密碼太可怕了，我老婆都不敢相信...',
-          '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！': contentData.testimonial2 || '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！',
-          '價值$50,000，現在免費': contentData.formSubtitle || '價值$50,000，現在免費',
-          '[感謝訊息和下一步指引]': contentData.thankYouMessage || '機密資料已發送到你的郵箱，立即查收開始你的財富之路'
         }
       } else if (templateName === 'warm-tone-funnel') {
         // Warm tone template replacements
