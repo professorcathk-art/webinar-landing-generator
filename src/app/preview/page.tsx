@@ -29,16 +29,23 @@ function PreviewContent() {
   // Execute JavaScript after HTML content is loaded
   useEffect(() => {
     if (previewData?.jsContent) {
-      // Create a script element and execute the JavaScript
-      const script = document.createElement('script')
-      script.textContent = previewData.jsContent
-      document.head.appendChild(script)
-      
-      // Clean up
-      return () => {
-        if (script.parentNode) {
-          script.parentNode.removeChild(script)
+      // Wait for the HTML to be rendered first
+      const timer = setTimeout(() => {
+        // Create a script element and execute the JavaScript
+        const script = document.createElement('script')
+        script.textContent = previewData.jsContent
+        document.body.appendChild(script) // Append to body instead of head
+        
+        // Clean up function
+        return () => {
+          if (script.parentNode) {
+            script.parentNode.removeChild(script)
+          }
         }
+      }, 200) // Increased delay to ensure HTML is fully rendered
+      
+      return () => {
+        clearTimeout(timer)
       }
     }
   }, [previewData?.jsContent])
