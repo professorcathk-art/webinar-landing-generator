@@ -154,6 +154,63 @@ function PreviewContent() {
     }
   }
 
+  const handlePublish = async () => {
+    try {
+      // Update the page status to published
+      const response = await fetch(`/api/landing-pages/${pageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          htmlContent: previewData?.htmlContent || '',
+          cssContent: previewData?.cssContent || '',
+          jsContent: previewData?.jsContent || '',
+          title: previewData?.title || '',
+          published: true
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to publish page')
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to publish page')
+      }
+      
+      // Generate the public URL (clean URL without preview)
+      const publicUrl = `${window.location.origin}/page/${pageId}`
+      
+      // Show success message with copy option
+      const shouldCopy = confirm(
+        'Page published successfully!\n\n' +
+        'Public URL: ' + publicUrl + '\n\n' +
+        'Would you like to copy the share link to your clipboard?'
+      )
+      
+      if (shouldCopy) {
+        try {
+          await navigator.clipboard.writeText(publicUrl)
+          alert('Share link copied to clipboard!')
+        } catch (clipboardError) {
+          console.error('Failed to copy to clipboard:', clipboardError)
+          alert('Share link copied to clipboard!')
+        }
+      }
+      
+      // Update the preview data state
+      setPreviewData(prev => prev ? { ...prev, isPublished: true } : null)
+      
+      // Redirect to dashboard after successful publish
+      router.push('/dashboard')
+      
+    } catch (err) {
+      console.error('Error publishing page:', err)
+      alert('Failed to publish page. Please try again.')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -198,6 +255,12 @@ function PreviewContent() {
                 >
                   <Edit className="h-4 w-4" />
                   <span>Edit</span>
+                </button>
+                <button
+                  onClick={handlePublish}
+                  className="flex items-center space-x-1 px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                >
+                  <span>{previewData.isPublished ? 'Update' : 'Publish'}</span>
                 </button>
                 <button
                   onClick={() => window.open(`/preview?id=${pageId}`, '_blank')}
