@@ -757,7 +757,6 @@ ${filledFields}
           '秒後自動關閉': contentData.submitCountdown || '秒後自動關閉',
           '資料絕對保密': contentData.guaranteeItem1 || '資料絕對保密',
           '立即獲得價值$50,000機密': contentData.guaranteeItem2 || '立即獲得價值$50,000機密',
-          '48小時後永遠關閉': contentData.guaranteeItem3 || '48小時後永遠關閉',
           
           // Thank you section
           '恭喜！你已獲得財富密碼': contentData.thankYouTitle || '恭喜！你已獲得財富密碼',
