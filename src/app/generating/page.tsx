@@ -80,23 +80,52 @@ function GeneratingContent() {
   }, [autoSubmit, pageId, isAutoSubmitting, router])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          // Redirect to preview page when complete
-          if (pageId) {
-            router.push(`/preview?id=${pageId}`)
-          } else {
-            router.push('/dashboard')
-          }
-          return 100
-        }
-        return prev + 2
-      })
-    }, 200)
+    if (!pageId) return
 
-    return () => clearInterval(interval)
+    let progressInterval: NodeJS.Timeout
+    let checkInterval: NodeJS.Timeout
+
+    // Start progress animation
+    progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 95) return 95 // Stop at 95% until page is ready
+        return prev + 1
+      })
+    }, 100)
+
+    // Check if page is ready
+    const checkPageReady = async () => {
+      try {
+        const response = await fetch(`/api/landing-pages/${pageId}`)
+        if (response.ok) {
+          const result = await response.json()
+          if (result.success && result.data) {
+            // Page is ready, complete the progress
+            clearInterval(progressInterval)
+            clearInterval(checkInterval)
+            setProgress(100)
+            
+            // Wait a moment then redirect
+            setTimeout(() => {
+              router.push(`/preview?id=${pageId}`)
+            }, 500)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking page status:', error)
+      }
+    }
+
+    // Check every 2 seconds
+    checkInterval = setInterval(checkPageReady, 2000)
+    
+    // Initial check
+    checkPageReady()
+
+    return () => {
+      if (progressInterval) clearInterval(progressInterval)
+      if (checkInterval) clearInterval(checkInterval)
+    }
   }, [pageId, router])
 
   useEffect(() => {
@@ -151,7 +180,7 @@ function GeneratingContent() {
           </div>
 
           <div className="text-xs text-gray-500">
-            <p>This usually takes 30-60 seconds</p>
+            <p>This usually takes 30-90 seconds</p>
             <p>Don't close this window</p>
           </div>
         </div>
