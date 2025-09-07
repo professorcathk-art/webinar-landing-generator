@@ -640,8 +640,6 @@ ${filledFields}
           '剩餘 23 個名額': contentData.remainingSpots || '剩餘 23 個名額',
           '1,847': contentData.trustNumber1 || '1,847',
           '人已搶占': contentData.trustNumber1 || '人已搶占',
-          '$2.8億': contentData.trustNumber2 || '$2.8億',
-          '學員總收益': contentData.trustNumber2 || '學員總收益',
           '48小時': contentData.trustNumber3 || '48小時',
           '後永遠關閉': contentData.trustNumber3 || '後永遠關閉',
           
@@ -782,10 +780,7 @@ ${filledFields}
           '首次公開！價值$50,000的頂級機密，48小時後永遠封存': contentData.valuePoint1Description || '首次公開！價值$50,000的頂級機密，48小時後永遠封存',
           '跟著血狼老師3個月，我從負債50萬變成資產千萬！財富密碼太可怕了，我老婆都不敢相信...': contentData.testimonial1 || '跟著血狼老師3個月，我從負債50萬變成資產千萬！財富密碼太可怕了，我老婆都不敢相信...',
           '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！': contentData.testimonial2 || '我26歲就財富自由了！同事還在996，而我已經躺著數錢。血狼老師，您改變了我的命運！',
-          '立即搶奪財富密碼': contentData.ctaButton || '立即搶奪財富密碼',
           '價值$50,000，現在免費': contentData.formSubtitle || '價值$50,000，現在免費',
-          '搶奪財富密碼': contentData.formTitle || '搶奪財富密碼',
-          '[感謝標題]': contentData.thankYouTitle || '恭喜！你已獲得財富密碼',
           '[感謝訊息和下一步指引]': contentData.thankYouMessage || '機密資料已發送到你的郵箱，立即查收開始你的財富之路'
         }
       } else if (templateName === 'warm-tone-funnel') {
