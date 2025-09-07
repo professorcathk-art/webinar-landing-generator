@@ -200,7 +200,7 @@ function PreviewContent() {
       }
       
       // Update the preview data state
-      setPreviewData(prev => prev ? { ...prev, isPublished: true } : null)
+      setPreviewData((prev: any) => prev ? { ...prev, isPublished: true } : null)
       
       // Redirect to dashboard after successful publish
       router.push('/dashboard')
